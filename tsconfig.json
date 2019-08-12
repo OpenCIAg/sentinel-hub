@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es2016",
+    "module": "es6",
     "preserveConstEnums": true,
-    "outFile": "./dist/sentinel-hub-wms.js",
+    "outDir": "./dist/",
     "rootDir": "./src/",
     "watch": true,
     "sourceMap": true,
     "removeComments": true,
-    // "declaration": true,
+    "declaration": true,
   }
 }
