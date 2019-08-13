@@ -1,4 +1,7 @@
-namespace Cropper {
+import { GeoJson, GeoJsonFeature } from "./interfaces";
+import { LagLngXY } from "./LagLngXY";
+
+export module Cropper {
     export function getLagLngXY(geoJson: GeoJson) {
         let toReturn: Array<LagLngXY> = []
         geoJson.features.forEach(element => {

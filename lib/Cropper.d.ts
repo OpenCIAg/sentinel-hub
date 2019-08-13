@@ -1,4 +1,6 @@
-declare namespace Cropper {
+import { GeoJson, GeoJsonFeature } from "./interfaces";
+import { LagLngXY } from "./LagLngXY";
+export declare module Cropper {
     function getLagLngXY(geoJson: GeoJson): LagLngXY[];
     function cropImage(feature: GeoJsonFeature, img: string, latLongXY: LagLngXY): Promise<{
         img: string;

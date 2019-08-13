@@ -1,5 +1,6 @@
+import { latLong } from "./interfaces";
 
-namespace GetMap {
+export module GetMap {
     class BoxCords {
         topLeft: latLong
         bottonRight: latLong
@@ -55,7 +56,7 @@ namespace GetMap {
         private DATE:Date = new Date()
 
 
-        constructor(UUID:string,params: {DATE:Date, BBOX: [Number[], Number[]], CRS?: string, SRS?: string, FORMAT: WMSParameters.Format, WIDTH?: string, HEIGHT?: string, RESX?: string, RESY?: string, BGCOLOR?: WMSParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: WMSParameters.Sentinel_2[], EXCEPTIONS?: WMSParameters.Exceptions }) {
+        constructor(UUID:string,params: {DATE:Date, BBOX: [number[], number[]], CRS?: string, SRS?: string, FORMAT: WMSParameters.Format, WIDTH?: string, HEIGHT?: string, RESX?: string, RESY?: string, BGCOLOR?: WMSParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: WMSParameters.Sentinel_2[], EXCEPTIONS?: WMSParameters.Exceptions }) {
             this.DATE= params.DATE?params.DATE:this.DATE
             this.UUID = UUID
             this.BBOX = new BoxCords({

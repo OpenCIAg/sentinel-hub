@@ -1,23 +1,23 @@
 
-interface latLong {
+export interface latLong {
     lat: string
     long: string
 }
-interface GeoJsonFeatureGeomety {
+export interface GeoJsonFeatureGeomety {
     "type": string; "coordinates": number[][][];
 }
-interface GeoJsonFeature {
+export interface GeoJsonFeature {
     "type": string
     "properties": {},
     "geometry": GeoJsonFeatureGeomety
 }
-interface GeoJson {
+export interface GeoJson {
     "type": string,
     "features": GeoJsonFeature[]
 
 }
-interface BoxCordsSimple {
-    topLeft: Number[]
-    bottonRight: Number[]
+export interface BoxCordsSimple {
+    topLeft: number[]
+    bottonRight: number[]
 }
 // import {  } from "module";

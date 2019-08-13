@@ -1,4 +1,9 @@
-namespace SentinelHubWms {
+import { GeoJson, GeoJsonFeature } from "./interfaces";
+import { GetMap } from './GetMap';
+import { Cropper } from "./Cropper";
+import { LagLngXY } from "./LagLngXY";
+
+export module SentinelHubWms {
 
     export async function geoJsonToShapeImgs(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]] }[]> {
         const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson)
@@ -35,7 +40,7 @@ namespace SentinelHubWms {
      * @param bbox 
      * @param layers
      */
-    export async function getImage(uuid: string, bbox: [Number[], Number[]], options: { date: Date, layers: WMSParameters.Sentinel_2[] }) {
+    export async function getImage(uuid: string, bbox: [number[], number[]], options: { date: Date, layers: WMSParameters.Sentinel_2[] }) {
         let getMap = new GetMap.GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: WMSParameters.Format.image_png, LAYERS: options.layers, WIDTH: "1024", HEIGHT: "780" })
         return await getMap.request()
     }

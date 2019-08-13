@@ -1,5 +1,5 @@
 //top-left reference point
-class LagLngXY {
+export class LagLngXY {
     pMin = {
         scrX: 0,
         scrY: 0,

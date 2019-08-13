@@ -1,4 +1,4 @@
-declare class LagLngXY {
+export declare class LagLngXY {
     pMin: {
         scrX: number;
         scrY: number;

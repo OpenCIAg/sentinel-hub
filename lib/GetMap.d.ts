@@ -1,4 +1,4 @@
-declare namespace GetMap {
+export declare module GetMap {
     class GetMap {
         private UUID;
         private BBOX;
@@ -16,7 +16,7 @@ declare namespace GetMap {
         private DATE;
         constructor(UUID: string, params: {
             DATE: Date;
-            BBOX: [Number[], Number[]];
+            BBOX: [number[], number[]];
             CRS?: string;
             SRS?: string;
             FORMAT: WMSParameters.Format;
