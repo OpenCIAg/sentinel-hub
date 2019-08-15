@@ -2,9 +2,11 @@ import { GeoJson, GeoJsonFeature } from "./interfaces";
 import { GetMap } from './GetMap';
 import { Cropper } from "./Cropper";
 import { LagLngXY } from "./LagLngXY";
+import { WMSParameters } from "./WMSParameters";
 
+export { WMSParameters } from "./WMSParameters";
 export module SentinelHubWms {
-
+    
     export async function geoJsonToShapeImgs(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]] }[]> {
         const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson)
         let packageResult: { img: string, LatLng: [number[], number[]] }[] = []
@@ -16,6 +18,8 @@ export module SentinelHubWms {
                 getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
                     packages.push({ data: URL.createObjectURL(data), latLng: LatLngXY, feature: geoJson.features[i] })
                     if (i + 1 == PolygonRestrains.length) { resolve(packages) }
+                },(e)=>{
+                    throw new Error(e)
                 })
             };
         })

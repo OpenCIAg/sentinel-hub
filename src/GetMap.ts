@@ -1,4 +1,5 @@
 import { latLong } from "./interfaces";
+import { WMSParameters } from "./WMSParameters";
 
 export module GetMap {
     class BoxCords {
@@ -93,7 +94,7 @@ export module GetMap {
                 return await (fetch(this.get_requestLink()).then(res => res.blob()))
             }
             catch (e) {
-                console.log(e)
+                throw new Error(e)
             }
         }
         private get_requestLink() {

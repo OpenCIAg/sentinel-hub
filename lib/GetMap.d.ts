@@ -1,3 +1,4 @@
+import { WMSParameters } from "./WMSParameters";
 export declare module GetMap {
     class GetMap {
         private UUID;

@@ -1,5 +1,7 @@
 import { GeoJson, GeoJsonFeature } from "./interfaces";
 import { LagLngXY } from "./LagLngXY";
+import { WMSParameters } from "./WMSParameters";
+export { WMSParameters } from "./WMSParameters";
 export declare module SentinelHubWms {
     function geoJsonToShapeImgs(geoJson: GeoJson, uuid: string, options: {
         date: Date;
