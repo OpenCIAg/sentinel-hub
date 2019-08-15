@@ -6,37 +6,47 @@ import { WMSParameters } from "./WMSParameters";
 
 export { WMSParameters } from "./WMSParameters";
 export module SentinelHubWms {
-    
+
     export async function geoJsonToShapeImgs(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]] }[]> {
-        const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson)
-        let packageResult: { img: string, LatLng: [number[], number[]] }[] = []
-        const packages: { data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] | void = await new Promise(async (resolve): Promise<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] | void> => {
-            let packages: { data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] = []
-            for (let i = 0; i < PolygonRestrains.length; i++) {
-                const LatLngXY = PolygonRestrains[i];
+        try {
+            const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson)
+            let packageResult: { img: string, LatLng: [number[], number[]] }[] = []
+            const packages: { data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] | void = await new Promise(async (resolve): Promise<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] | void> => {
+                let packages: { data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] = []
+                for (let i = 0; i < PolygonRestrains.length; i++) {
+                    const LatLngXY = PolygonRestrains[i];
 
-                getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
-                    packages.push({ data: URL.createObjectURL(data), latLng: LatLngXY, feature: geoJson.features[i] })
-                    if (i + 1 == PolygonRestrains.length) { resolve(packages) }
-                },(e)=>{
-                    throw new Error(e)
-                })
-            };
-        })
+                    getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
+                        packages.push({ data: URL.createObjectURL(data), latLng: LatLngXY, feature: geoJson.features[i] })
+                        if (i + 1 == PolygonRestrains.length) { resolve(packages) }
+                    }, (e) => {
+                        throw new Error(e)
+                    })
+                };
+            })
 
-        if (packages) {
-            for (const element of packages) {
-                let returning = await createShapeAsImage(element.feature, element.data, element.latLng)
-                packageResult.push(returning)
-            };
+
+            if (packages) {
+                for (const element of packages) {
+                    let returning = await createShapeAsImage(element.feature, element.data, element.latLng)
+                    packageResult.push(returning)
+                };
+            }
+            return packageResult
         }
-        return packageResult
+        catch (e) {
+            throw new Error(e)
+        }
     }
     export async function geoJsonToShapeImg(feature: GeoJsonFeature, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]] }> {
-       
-        const latLng = latLngToXYTool(feature)
-        let image = await getImage(uuid, latLng[0].getBobxConnors(), options)
-        return await createShapeAsImage(feature, URL.createObjectURL(image), latLng[0])
+        try {
+            const latLng = latLngToXYTool(feature)
+            let image = await getImage(uuid, latLng[0].getBobxConnors(), options)
+            return await createShapeAsImage(feature, URL.createObjectURL(image), latLng[0])
+        }
+        catch (e) {
+            throw new Error(e)
+        }
     }
     /**
      * 
