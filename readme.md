@@ -1,18 +1,17 @@
 # OpenCIAg | sentinel-hub-wms
 
 ## Install
+
 ```shell
 npm install @ciag/sentinel-hub-wms
 ```
+
 ## API
 
 ### geoJsonToShapeImgs()
 
+## Usage
 
-## Usage example with Angular
-
-
-### Use the service
 ```ts
 import { SentinelHubWms } from 'sentinel-hub-wms';
 import { WMSParameters } from 'sentinel-hub-wms/lib/WMSParameters';
@@ -30,4 +29,3 @@ SentinelHubWms.geoJsonToShapeImgs(geoJson, uuid, { date: new Date(), layers: [WM
     console.log(e)
 })
 ```
-
