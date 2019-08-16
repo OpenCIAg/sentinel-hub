@@ -1,79 +1,75 @@
-import { GeoJson, GeoJsonFeature } from "./interfaces";
-import { GetMap } from './GetMap';
 import { Cropper } from "./Cropper";
+import { GetMap } from "./GetMap";
+import { GeoJson, GeoJsonFeature } from "./interfaces";
 import { LagLngXY } from "./LagLngXY";
 import { WMSParameters } from "./WMSParameters";
 
 export { WMSParameters } from "./WMSParameters";
-export module SentinelHubWms {
-
-    export async function geoJsonToShapeImgs(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]] }[]> {
+export namespace SentinelHubWms {
+    export async function geoJsonToShapeImgs(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
         try {
-            const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson)
-            let packageResult: { img: string, LatLng: [number[], number[]] }[] = []
-            const packages: { data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] | void = await new Promise(async (resolve): Promise<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] | void> => {
-                let packages: { data: string, latLng: LagLngXY, feature: GeoJsonFeature }[] = []
+            const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
+            const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
+            const packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
+            await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
+                const packagesP: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> = [];
                 for (let i = 0; i < PolygonRestrains.length; i++) {
                     const LatLngXY = PolygonRestrains[i];
 
                     getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
-                        packages.push({ data: URL.createObjectURL(data), latLng: LatLngXY, feature: geoJson.features[i] })
-                        if (i + 1 == PolygonRestrains.length) { resolve(packages) }
+                        packagesP.push({ data: URL.createObjectURL(data), latLng: LatLngXY, feature: geoJson.features[i], link: data.link });
+                        if (i + 1 === PolygonRestrains.length) { resolve(packages); }
                     }, (e) => {
-                        throw new Error(e)
-                    })
-                };
-            })
-
-
+                        throw new Error(e);
+                    });
+                }
+            });
             if (packages) {
                 for (const element of packages) {
-                    let returning = await createShapeAsImage(element.feature, element.data, element.latLng)
-                    packageResult.push(returning)
-                };
+                    const shape = await createShapeAsImage(element.feature, element.data, element.latLng);
+
+                    packageResult.push({ img: shape.img, LatLng: shape.LatLng, link: element.link });
+                }
             }
-            return packageResult
-        }
-        catch (e) {
-            throw new Error(e)
+            return packageResult;
+        } catch (e) {
+            throw new Error(e);
         }
     }
-    export async function geoJsonToShapeImg(feature: GeoJsonFeature, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]] }> {
+    export async function geoJsonToShapeImg(feature: GeoJsonFeature, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
         try {
-            const latLng = latLngToXYTool(feature)
-            let image = await getImage(uuid, latLng[0].getBobxConnors(), options)
-            return await createShapeAsImage(feature, URL.createObjectURL(image), latLng[0])
-        }
-        catch (e) {
-            throw new Error(e)
+            const latLng = latLngToXYTool(feature);
+            const image = await getImage(uuid, latLng[0].getBobxConnors(), options);
+            const shape = await createShapeAsImage(feature, URL.createObjectURL(image.blob), latLng[0]);
+            return { img: shape.img, LatLng: shape.LatLng, link: image.link };
+        } catch (e) {
+            throw new Error(e);
         }
     }
     /**
-     * 
-     * @param uuid 
-     * @param bbox 
+     * @param uuid;
+     * @param bbox;
      * @param layers
      */
     export async function getImage(uuid: string, bbox: [number[], number[]], options: { date: Date, layers: WMSParameters.Sentinel_2[] }) {
-        let getMap = new GetMap.GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: WMSParameters.Format.image_png, LAYERS: options.layers, WIDTH: "1024", HEIGHT: "780" })
-        return await getMap.request()
+        const getMap = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: WMSParameters.Format.image_png, LAYERS: options.layers, WIDTH: "1024", HEIGHT: "780" });
+        return await getMap.request();
     }
     /**
      * Uses a GeoJSON to an array of objects that can make several transformation to use a GeoJSON features as shapes, just like a GIS system
-     * @param geoJson 
+     * @param geoJson ;
      */
     export function latLngToXYTool(geoJson: GeoJson | GeoJsonFeature) {
         if (("features" in geoJson)) {
-            return Cropper.getLagLngXY(geoJson)
-        }
-        else {
+            return Cropper.getLagLngXY(geoJson);
+        } else {
             return Cropper.getLagLngXY({
-                "type": "FeatureCollection",
-                "features": [geoJson]
-            })
+                features: [geoJson],
+                type: "FeatureCollection",
+            });
         }
     }
     export function createShapeAsImage(feature: GeoJsonFeature, img: string, latLongXY: LagLngXY) {
-        return Cropper.cropImage(feature, img, latLongXY)
+        return Cropper.cropImage(feature, img, latLongXY);
     }
 }

@@ -1,4 +1,4 @@
-export declare module WMSParameters {
+export declare namespace WMSParameters {
     enum Format {
         image_png = "image/png",
         image_jpeg = "image/jpeg",

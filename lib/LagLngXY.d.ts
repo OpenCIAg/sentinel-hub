@@ -1,28 +1,28 @@
 export declare class LagLngXY {
     pMin: {
-        scrX: number;
-        scrY: number;
         lat: any;
         lng: any;
-        pos: any;
         perX: any;
         perY: any;
+        pos: any;
+        scrX: number;
+        scrY: number;
     };
     pMax: {
-        scrX: number;
-        scrY: number;
         lat: any;
         lng: any;
-        pos: any;
         perX: any;
         perY: any;
+        pos: any;
+        scrX: number;
+        scrY: number;
     };
     radius: number;
+    constructor(pMinLat: any, pMinLng: any, pMaxLat: any, pMaxLng: any);
     latlngToGlobalXY(lat: any, lng: any): {
         x: number;
         y: number;
     };
-    constructor(pMinLat: any, pMinLng: any, pMaxLat: any, pMaxLng: any);
     latlngToScreenXY(lat: any, lng: any): {
         x: number;
         y: number;

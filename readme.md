@@ -10,8 +10,6 @@ npm install @ciag/sentinel-hub-wms
 
 ### geoJsonToShapeImgs()
 
-## Usage
-
 ```ts
 import { SentinelHubWms } from 'sentinel-hub-wms';
 import { WMSParameters } from 'sentinel-hub-wms/lib/WMSParameters';
@@ -27,5 +25,16 @@ SentinelHubWms.geoJsonToShapeImgs(geoJson, uuid, { date: new Date(), layers: [WM
 
 }).catch((e) => {
     console.log(e)
+})
+```
+
+### getImage()
+
+```ts
+import {SentinelHubWms,WMSParameters} from "sentinel-hub-wms"
+const uuid = "{{Seu UUID aqui}}"
+
+SentinelHubWms.getImage(uuid,[[-410.4859972000122, -21.96740494795422],[-410.4850959777832, -21.969255615138092]],{date:new Date(),layers:[WMSParameters.Sentinel_2.NDVI]}).then(result =>{
+    console.log(result.type)
 })
 ```

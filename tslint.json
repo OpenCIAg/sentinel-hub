@@ -3,7 +3,12 @@
     "extends": [
         "tslint:recommended"
     ],
+    "rules": {
+        "max-line-length": {
+            "options": [4120]
+        },
+        "no-namespace":false
+    },
     "jsRules": {},
-    "rules": {},
     "rulesDirectory": []
 }
