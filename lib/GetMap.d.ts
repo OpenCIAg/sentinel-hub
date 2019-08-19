@@ -31,7 +31,7 @@ export declare class GetMap {
     });
     request(): Promise<{
         link: string;
-        blob: Promise<Blob>;
+        blob: any;
     }>;
     measure(lat1: any, lon1: any, lat2: any, lon2: any): number;
     private get_requestLink;

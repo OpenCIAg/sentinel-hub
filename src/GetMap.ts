@@ -78,7 +78,11 @@ export class GetMap {
     }
     public async request() {
         try {
-            return await (fetch(this.get_requestLink()).then((res) => ({link: res.url, blob: res.blob() })));
+            return await (fetch(this.get_requestLink()).then(async (res) => {
+                const result = { link: res.url, blob: null };
+                result.blob = await res.blob();
+                return result;
+            }));
         } catch (e) {
             throw new Error(e);
         }

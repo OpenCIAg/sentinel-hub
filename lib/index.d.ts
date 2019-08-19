@@ -29,7 +29,7 @@ export declare namespace SentinelHubWms {
         layers: WMSParameters.Sentinel_2[];
     }): Promise<{
         link: string;
-        blob: Promise<Blob>;
+        blob: any;
     }>;
     /**
      * Uses a GeoJSON to an array of objects that can make several transformation to use a GeoJSON features as shapes, just like a GIS system
