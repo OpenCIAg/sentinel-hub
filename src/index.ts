@@ -10,8 +10,8 @@ export namespace SentinelHubWms {
         try {
             const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
             const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
-            const packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
-            await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
+            let packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
+            packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
                 const packagesP: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> = [];
                 for (let i = 0; i < PolygonRestrains.length; i++) {
                     const LatLngXY = PolygonRestrains[i];
@@ -40,8 +40,8 @@ export namespace SentinelHubWms {
         try {
             const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
             const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
-            const packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
-            await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
+            let  packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
+            packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
                 const packagesP: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> = [];
                 for (let i = 0; i < PolygonRestrains.length; i++) {
                     const LatLngXY = PolygonRestrains[i];
