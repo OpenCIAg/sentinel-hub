@@ -18,7 +18,7 @@ export namespace SentinelHubWms {
                     debugger
                     getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
                         packagesP.push({ data: URL.createObjectURL(data.blob), latLng: LatLngXY, feature: geoJson.features[i], link: data.link });
-                        if (i + 1 === PolygonRestrains.length) { resolve(packages); }
+                        if (i + 1 === PolygonRestrains.length) { resolve(packagesP); }
                     }, (e) => {
                         throw new Error(e);
                     });
@@ -48,7 +48,7 @@ export namespace SentinelHubWms {
 
                     const objImg = { blob: img, link: "" }
                     packagesP.push({ data: URL.createObjectURL(objImg.blob), latLng: LatLngXY, feature: geoJson.features[i], link: objImg.link });
-                    if (i + 1 === PolygonRestrains.length) { resolve(packages); }
+                    if (i + 1 === PolygonRestrains.length) { resolve(packagesP); }
                 }
             });
             if (packages) {
