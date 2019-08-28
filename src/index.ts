@@ -6,7 +6,7 @@ import { WMSParameters } from "./WMSParameters";
 
 export { WMSParameters } from "./WMSParameters";
 export namespace SentinelHubWms {
-    export async function geoJsonToShapeImgs(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
+    export async function getShapesFromSentinel(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
         try {
             const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
             const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
@@ -36,12 +36,52 @@ export namespace SentinelHubWms {
             throw new Error(e);
         }
     }
-    export async function geoJsonToShapeImg(feature: GeoJsonFeature, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
+    export async function getShapesFromImage(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
+        try {
+            const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
+            const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
+            const packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
+            await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
+                const packagesP: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> = [];
+                for (let i = 0; i < PolygonRestrains.length; i++) {
+                    const LatLngXY = PolygonRestrains[i];
+
+                    getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
+                        packagesP.push({ data: URL.createObjectURL(data), latLng: LatLngXY, feature: geoJson.features[i], link: data.link });
+                        if (i + 1 === PolygonRestrains.length) { resolve(packages); }
+                    }, (e) => {
+                        throw new Error(e);
+                    });
+                }
+            });
+            if (packages) {
+                for (const element of packages) {
+                    const shape = await createShapeAsImage(element.feature, element.data, element.latLng);
+
+                    packageResult.push({ img: shape.img, LatLng: shape.LatLng, link: element.link });
+                }
+            }
+            return packageResult;
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+    export async function getShapeFromSentinel(feature: GeoJsonFeature, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
         try {
             const latLng = latLngToXYTool(feature);
             const image = await getImage(uuid, latLng[0].getBobxConnors(), options);
             const shape = await createShapeAsImage(feature, URL.createObjectURL(image.blob), latLng[0]);
             return { img: shape.img, LatLng: shape.LatLng, link: image.link };
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+    export async function getShapeFromImage(img:Blob,feature: GeoJsonFeature, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
+        try {
+            const latLng = latLngToXYTool(feature);
+            const objImg={blob:img,link:""}
+            const shape = await createShapeAsImage(feature, URL.createObjectURL(objImg.blob), latLng[0]);
+            return { img: shape.img, LatLng: shape.LatLng, link: objImg.link };
         } catch (e) {
             throw new Error(e);
         }

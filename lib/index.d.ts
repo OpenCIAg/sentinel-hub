@@ -3,7 +3,7 @@ import { LagLngXY } from "./LagLngXY";
 import { WMSParameters } from "./WMSParameters";
 export { WMSParameters } from "./WMSParameters";
 export declare namespace SentinelHubWms {
-    function geoJsonToShapeImgs(geoJson: GeoJson, uuid: string, options: {
+    function getShapesFromSentinel(geoJson: GeoJson, uuid: string, options: {
         date: Date;
         layers: WMSParameters.Sentinel_2[];
     }): Promise<Array<{
@@ -11,7 +11,23 @@ export declare namespace SentinelHubWms {
         LatLng: [number[], number[]];
         link: string;
     }>>;
-    function geoJsonToShapeImg(feature: GeoJsonFeature, uuid: string, options: {
+    function getShapesFromImage(geoJson: GeoJson, uuid: string, options: {
+        date: Date;
+        layers: WMSParameters.Sentinel_2[];
+    }): Promise<Array<{
+        img: string;
+        LatLng: [number[], number[]];
+        link: string;
+    }>>;
+    function getShapeFromSentinel(feature: GeoJsonFeature, uuid: string, options: {
+        date: Date;
+        layers: WMSParameters.Sentinel_2[];
+    }): Promise<{
+        img: string;
+        LatLng: [number[], number[]];
+        link: string;
+    }>;
+    function getShapeFromImage(img: Blob, feature: GeoJsonFeature, uuid: string, options: {
         date: Date;
         layers: WMSParameters.Sentinel_2[];
     }): Promise<{
