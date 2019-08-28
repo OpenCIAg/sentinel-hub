@@ -17,7 +17,7 @@ export namespace SentinelHubWms {
                     const LatLngXY = PolygonRestrains[i];
 
                     getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
-                        packagesP.push({ data: URL.createObjectURL(data), latLng: LatLngXY, feature: geoJson.features[i], link: data.link });
+                        packagesP.push({ data: URL.createObjectURL(data.blob), latLng: LatLngXY, feature: geoJson.features[i], link: data.link });
                         if (i + 1 === PolygonRestrains.length) { resolve(packages); }
                     }, (e) => {
                         throw new Error(e);
@@ -36,7 +36,7 @@ export namespace SentinelHubWms {
             throw new Error(e);
         }
     }
-    export async function getShapesFromImage(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
+    export async function getShapesFromImage(img: Blob, geoJson: GeoJson): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
         try {
             const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
             const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
@@ -46,12 +46,9 @@ export namespace SentinelHubWms {
                 for (let i = 0; i < PolygonRestrains.length; i++) {
                     const LatLngXY = PolygonRestrains[i];
 
-                    getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
-                        packagesP.push({ data: URL.createObjectURL(data), latLng: LatLngXY, feature: geoJson.features[i], link: data.link });
-                        if (i + 1 === PolygonRestrains.length) { resolve(packages); }
-                    }, (e) => {
-                        throw new Error(e);
-                    });
+                    const objImg = { blob: img, link: "" }
+                    packagesP.push({ data: URL.createObjectURL(objImg.blob), latLng: LatLngXY, feature: geoJson.features[i], link: objImg.link });
+                    if (i + 1 === PolygonRestrains.length) { resolve(packages); }
                 }
             });
             if (packages) {
@@ -76,10 +73,10 @@ export namespace SentinelHubWms {
             throw new Error(e);
         }
     }
-    export async function getShapeFromImage(img:Blob,feature: GeoJsonFeature, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
+    export async function getShapeFromImage(img: Blob, feature: GeoJsonFeature): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
         try {
             const latLng = latLngToXYTool(feature);
-            const objImg={blob:img,link:""}
+            const objImg = { blob: img, link: "" }
             const shape = await createShapeAsImage(feature, URL.createObjectURL(objImg.blob), latLng[0]);
             return { img: shape.img, LatLng: shape.LatLng, link: objImg.link };
         } catch (e) {

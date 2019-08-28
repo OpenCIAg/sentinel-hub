@@ -11,10 +11,7 @@ export declare namespace SentinelHubWms {
         LatLng: [number[], number[]];
         link: string;
     }>>;
-    function getShapesFromImage(geoJson: GeoJson, uuid: string, options: {
-        date: Date;
-        layers: WMSParameters.Sentinel_2[];
-    }): Promise<Array<{
+    function getShapesFromImage(img: Blob, geoJson: GeoJson): Promise<Array<{
         img: string;
         LatLng: [number[], number[]];
         link: string;
@@ -27,10 +24,7 @@ export declare namespace SentinelHubWms {
         LatLng: [number[], number[]];
         link: string;
     }>;
-    function getShapeFromImage(img: Blob, feature: GeoJsonFeature, uuid: string, options: {
-        date: Date;
-        layers: WMSParameters.Sentinel_2[];
-    }): Promise<{
+    function getShapeFromImage(img: Blob, feature: GeoJsonFeature): Promise<{
         img: string;
         LatLng: [number[], number[]];
         link: string;
