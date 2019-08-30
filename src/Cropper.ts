@@ -29,7 +29,6 @@ export namespace Cropper {
                     ctx.beginPath();
                     const x = [];
                     feature.geometry.coordinates[0].forEach((cord, i) => {
-
                         const corde = latLongXY.latlngToScreenXY(cord[1], cord[0]);
                         if (!i) {
                             ctx.moveTo(corde.x, corde.y);
@@ -38,7 +37,7 @@ export namespace Cropper {
                     ctx.stroke();
 
                     ctx.clip();
-                    ctx.drawImage(image, 0, 0);
+                    ctx.drawImage(image, 0, 0,image.width,image.height);
                     r({ img: canvas.toDataURL(), LatLng: latLongXY.getBobxConnors() });
                 }
             };

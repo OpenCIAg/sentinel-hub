@@ -15,7 +15,6 @@ export namespace SentinelHubWms {
                 const packagesP: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> = [];
                 for (let i = 0; i < PolygonRestrains.length; i++) {
                     const LatLngXY = PolygonRestrains[i];
-                    debugger
                     getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
                         packagesP.push({ data: URL.createObjectURL(data.blob), latLng: LatLngXY, feature: geoJson.features[i], link: data.link });
                         if (i + 1 === PolygonRestrains.length) { resolve(packagesP); }
