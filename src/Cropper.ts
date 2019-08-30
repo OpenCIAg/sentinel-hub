@@ -20,8 +20,8 @@ export namespace Cropper {
             image.src = img;
             image.onload = () => {
                 const canvas = document.createElement("canvas");
-                canvas.height = 780;
-                canvas.width = 1024;
+                canvas.height = image.height;
+                canvas.width = image.width;
                 canvas.style.display = "none";
                 document.body.appendChild(canvas);
                 if (canvas.getContext) {
