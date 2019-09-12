@@ -3,6 +3,7 @@ import { GetMap } from "./GetMap";
 import { GeoJson, GeoJsonFeature } from "./interfaces";
 import { LagLngXY } from "./LagLngXY";
 import { WMSParameters } from "./WMSParameters";
+import { ColorFinder } from "./colorPiker";
 
 export { WMSParameters } from "./WMSParameters";
 export namespace SentinelHubWms {
@@ -39,7 +40,7 @@ export namespace SentinelHubWms {
         try {
             const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
             const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
-            let  packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
+            let packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
             packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
                 const packagesP: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> = [];
                 for (let i = 0; i < PolygonRestrains.length; i++) {
@@ -71,6 +72,33 @@ export namespace SentinelHubWms {
         } catch (e) {
             throw new Error(e);
         }
+    }
+    export async function getDangerZone(feature: GeoJsonFeature, image: string | HTMLImageElement):Promise<GeoJson> {
+        const geoJson:GeoJson = {
+            "type" : "FeatureCollection",
+            "features" : []
+        }
+        let convertedImage:HTMLImageElement
+        if (typeof image === "string") {
+            convertedImage =await new Promise((resolve,reject) => {
+                const imgConverter = new Image()
+                imgConverter.src = image
+                imgConverter.onload = () => {
+                    resolve(imgConverter)
+                }
+                imgConverter.onerror = ()=>{
+                    reject('fail to convert string to image')
+                }
+            })
+        }
+        else{
+            convertedImage = image
+        }
+        const points = await new ColorFinder(convertedImage).getfindColor(feature)
+        points.forEach(item=>{
+            geoJson.features.push(item)
+        })
+        return geoJson
     }
     export async function getShapeFromImage(img: Blob, feature: GeoJsonFeature): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
         try {
