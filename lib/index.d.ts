@@ -24,6 +24,7 @@ export declare namespace SentinelHubWms {
         LatLng: [number[], number[]];
         link: string;
     }>;
+    function getDangerZone(feature: GeoJsonFeature, image: string | HTMLImageElement): Promise<GeoJson>;
     function getShapeFromImage(img: Blob, feature: GeoJsonFeature): Promise<{
         img: string;
         LatLng: [number[], number[]];

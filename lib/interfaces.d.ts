@@ -4,7 +4,7 @@ export interface latLong {
 }
 export interface GeoJsonFeatureGeomety {
     "type": string;
-    "coordinates": number[][][];
+    "coordinates": number[][][] | any;
 }
 export interface GeoJsonFeature {
     "type": string;
