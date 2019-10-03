@@ -1,7 +1,7 @@
 export class SentinelHubURL {
     public parameters = [];
     public link: string;
-    public preset = "http://services.sentinel-hub.com/ogc/wms/";
+    public preset = "https://services.sentinel-hub.com/ogc/wms/";
     public request = "REQUEST=GetMap";
     public UUID: string;
     public timeFrom = null;
