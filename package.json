@@ -1,18 +1,16 @@
 {
-  "name": "sentinel-hub-wms",
-  "version": "1.1.0",
+  "name": "@ciag/sentinel-hub-wms",
+  "private": false,
+  "version": "1.1.28",
   "description": "a API to collect data via wms from the sentinel-hub based in geoJson features(shapes)",
-  "main": "dist/sentinel-hub-wms.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "lib/index.js",
   "keywords": [
     "sentinel-hub",
     "geoJSON",
     "leaftjs"
   ],
   "files": [
-    "dist/*"
+    "lib/*"
   ],
   "author": "Carlos Benedetti",
   "license": "ISC",

@@ -1,12 +1,22 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "preserveConstEnums": true,
-    "outFile": "./dist/sentinel-hub-wms.js",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./lib",
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    // "strict": true,
     "rootDir": "./src/",
-    "watch": true,
-    "sourceMap": true,
-    "removeComments": true,
-    // "declaration": true,
-  }
+    "moduleResolution": "node",
+    "lib": [
+      "dom",
+      "es2015"
+    ],
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "**/__tests__/*"]
 }
