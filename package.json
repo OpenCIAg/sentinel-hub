@@ -12,6 +12,10 @@
   "files": [
     "lib/*"
   ],
+  "repository": {
+    "type" : "git",
+    "url" : "https://gitlab.com/Cadub/sentinel-hub-wms"
+  },
   "author": "Carlos Benedetti",
   "license": "ISC",
   "devDependencies": {
