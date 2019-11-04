@@ -4,6 +4,7 @@ import { GeoJson, GeoJsonFeature } from "./interfaces";
 import { LagLngXY } from "./LagLngXY";
 import { WMSParameters } from "./WMSParameters";
 import { ColorFinder } from "./colorPiker";
+import { FindStructure } from "./findStructure";
 
 export { WMSParameters } from "./WMSParameters";
 export namespace SentinelHubWms {
@@ -46,7 +47,7 @@ export namespace SentinelHubWms {
                 for (let i = 0; i < PolygonRestrains.length; i++) {
                     const LatLngXY = PolygonRestrains[i];
 
-                    const objImg = { blob: img, link: "" }
+                    const objImg = { blob: img, link: "" };
                     packagesP.push({ data: URL.createObjectURL(objImg.blob), latLng: LatLngXY, feature: geoJson.features[i], link: objImg.link });
                     if (i + 1 === PolygonRestrains.length) { resolve(packagesP); }
                 }
@@ -63,47 +64,52 @@ export namespace SentinelHubWms {
             throw new Error(e);
         }
     }
-    export async function getShapeFromSentinel(feature: GeoJsonFeature, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
+    export async function getShapeFromSentinel(feature: GeoJsonFeature, uuid: string, options: { removeRoof: boolean, date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
         try {
-            const latLng = latLngToXYTool(feature);
-            const image = await getImage(uuid, latLng[0].getBobxConnors(), options);
-            const shape = await createShapeAsImage(feature, URL.createObjectURL(image.blob), latLng[0]);
-            return { img: shape.img, LatLng: shape.LatLng, link: image.link };
+            if (options.removeRoof) {
+                return await new FindStructure(uuid, feature, options.date).getInvalidPixels();
+            }
+            else {
+                const latLng = latLngToXYTool(feature);
+                const image = await getImage(uuid, latLng[0].getBobxConnors(), options);
+                const shape = await createShapeAsImage(feature, URL.createObjectURL(image.blob), latLng[0]);
+                return { img: shape.img, LatLng: shape.LatLng, link: image.link };
+            }
         } catch (e) {
             throw new Error(e);
         }
     }
-    export async function getDangerZone(feature: GeoJsonFeature, image: string | HTMLImageElement):Promise<GeoJson> {
-        const geoJson:GeoJson = {
-            "type" : "FeatureCollection",
-            "features" : []
-        }
-        let convertedImage:HTMLImageElement
+    export async function getDangerZone(feature: GeoJsonFeature, image: string | HTMLImageElement): Promise<GeoJson> {
+        const geoJson: GeoJson = {
+            "type": "FeatureCollection",
+            "features": []
+        };
+        let convertedImage: HTMLImageElement;
         if (typeof image === "string") {
-            convertedImage =await new Promise((resolve,reject) => {
-                const imgConverter = new Image()
-                imgConverter.src = image
+            convertedImage = await new Promise((resolve, reject) => {
+                const imgConverter = new Image();
+                imgConverter.src = image;
                 imgConverter.onload = () => {
-                    resolve(imgConverter)
-                }
-                imgConverter.onerror = ()=>{
-                    reject('fail to convert string to image')
-                }
-            })
+                    resolve(imgConverter);
+                };
+                imgConverter.onerror = () => {
+                    reject('fail to convert string to image');
+                };
+            });
         }
-        else{
-            convertedImage = image
+        else {
+            convertedImage = image;
         }
-        const points = await new ColorFinder(convertedImage).getfindColor(feature)
-        points.forEach(item=>{
-            geoJson.features.push(item)
-        })
-        return geoJson
+        const points = await new ColorFinder(convertedImage).getfindColor(feature);
+        points.forEach(item => {
+            geoJson.features.push(item);
+        });
+        return geoJson;
     }
     export async function getShapeFromImage(img: Blob, feature: GeoJsonFeature): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
         try {
             const latLng = latLngToXYTool(feature);
-            const objImg = { blob: img, link: "" }
+            const objImg = { blob: img, link: "" };
             const shape = await createShapeAsImage(feature, URL.createObjectURL(objImg.blob), latLng[0]);
             return { img: shape.img, LatLng: shape.LatLng, link: objImg.link };
         } catch (e) {

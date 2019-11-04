@@ -18,52 +18,56 @@ declare module IGeoJsonPoint {
         coordinates?: (number)[] | null;
     }
 
-
 }
 
 export class ColorFinder {
-    canvas: HTMLCanvasElement;
-    canvas2: HTMLCanvasElement;
+    public width = 50;
+    public height = 50;
+    public canvas: HTMLCanvasElement;
+    public canvas2: HTMLCanvasElement;
+    public canvasContext: CanvasRenderingContext2D;
     constructor(public img: HTMLImageElement) {
-        this.canvas = document.createElement('canvas');
-        const width = 50
-        const height = 50
+        this.canvas = document.createElement("canvas");
+        const width = this.width;
+        const height = this.height;
         this.canvas.width = width;
         this.canvas.height = height;
-        this.canvas.getContext('2d').drawImage(this.img, 0, 0, width, height);
-        this.canvas2 = document.createElement('canvas')
+        this.canvasContext = this.canvas.getContext("2d")
+        this.canvas.getContext("2d").drawImage(this.img, 0, 0, width, height);
+        this.canvas2 = document.createElement("canvas");
         this.canvas2.width = width;
         this.canvas2.height = height;
     }
-    map(x: number, in_min: number, in_max: number, out_min: number, out_max: number): number {
+    // tslint:disable-next-line: variable-name
+    public map(x: number, in_min: number, in_max: number, out_min: number, out_max: number): number {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
-    getfindColor(geoJson: GeoJsonFeature): Promise<GeoJsonFeature[]> {
+    public getfindColor(geoJson: GeoJsonFeature): Promise<GeoJsonFeature[]> {
         return new Promise((resolve) => {
-            const FeatureGrop: GeoJsonFeature[] = []
-            Array.from(Array(this.canvas.width).keys()).forEach(x => {
-                Array.from(Array(this.canvas.height).keys()).forEach(y => {
-                    const data = this.canvas.getContext('2d').getImageData(x, y, 1, 1).data
+            const FeatureGrop: GeoJsonFeature[] = [];
+            Array.from(Array(this.canvas.width).keys()).forEach((x) => {
+                Array.from(Array(this.canvas.height).keys()).forEach((y) => {
+                    const data = this.canvas.getContext("2d").getImageData(x, y, 1, 1).data;
                     if (data[0] > 100 && data[2] < 72 && data[1] < 100) {
-                        const latLong = SentinelHubWms.latLngToXYTool(geoJson)[0]
+                        const latLong = SentinelHubWms.latLngToXYTool(geoJson)[0];
 
-                        const mapy = (this.map(y + 0.4, 0, 50, latLong.pMin.lat, latLong.pMax.lat));
-                        const mapx = this.map(((x - 50) * -1) - 0.4, 0, 50, latLong.pMin.lng, latLong.pMax.lng);
+                        const mapy = (this.map(y + 0.4, 0, this.height, latLong.pMin.lat, latLong.pMax.lat));
+                        const mapx = this.map(((x - this.width) * -1) - 0.4, 0, this.width, latLong.pMin.lng, latLong.pMax.lng);
                         const feature: GeoJsonFeature = {
-                            type: "Feature",
-                            properties: {},
                             geometry: {
+                                coordinates: [mapy, mapx],
                                 type: "Point",
-                                coordinates: [mapy, mapx]
-                            }
-                        }
-                        FeatureGrop.push(feature)
+                            },
+                            properties: {},
+                            type: "Feature",
+                        };
+                        FeatureGrop.push(feature);
                     }
 
-                })
-            })
-            resolve(FeatureGrop)
-        })
+                });
+            });
+            resolve(FeatureGrop);
+        });
     }
 
 }

@@ -17,6 +17,7 @@ export declare namespace SentinelHubWms {
         link: string;
     }>>;
     function getShapeFromSentinel(feature: GeoJsonFeature, uuid: string, options: {
+        removeRoof: boolean;
         date: Date;
         layers: WMSParameters.Sentinel_2[];
     }): Promise<{
