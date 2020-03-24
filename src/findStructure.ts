@@ -1,11 +1,11 @@
 import * as moment from "moment";
 import { SentinelHubWms } from ".";
-import { GeoJsonFeature, GeoJson } from "./interfaces";
 import { WMSParameters } from "./WMSParameters";
 import { ColorFinder } from "./colorPiker";
+import { Feature, Polygon } from "geojson";
 
 export class FindStructure {
-    constructor(public uuid: string, public shape: GeoJsonFeature, public dateFromShape: Date) { }
+    constructor(public uuid: string, public shape: Feature<Polygon>, public dateFromShape: Date) { }
     public async getmonthAfter() {
         const monthAfter = moment(this.dateFromShape).add("months", 1).toDate();
         return await this.getDangerZoneByDate(monthAfter);
@@ -50,15 +50,15 @@ export class FindStructure {
             }
             return 0;
         });
-        const validPoints: GeoJsonFeature[] = []
+        const validPoints: Feature<Polygon>[] = []
         ponts[0].forEach((i, index) => {
             const p1HasValue = !!ponts[1].find(i => i == ponts[0][index]);
             const p2HasValue = !!ponts[2].find(i => i == ponts[0][index]);
             if ((!!ponts[0][index]) && p1HasValue && p2HasValue) {
-                const feature: GeoJsonFeature = {
+                const feature: Feature<Polygon> = {
                     geometry: {
                         coordinates: [i[0], i[1]],
-                        type: "Point",
+                        type: "Polygon",
                     },
                     properties: {},
                     type: "Feature",
@@ -66,7 +66,7 @@ export class FindStructure {
                 validPoints.push(feature)
             }
         });
-        const returnGeoJson: GeoJson = {
+        const returnGeoJson: GeoJSON.FeatureCollection<Polygon> = {
             features: validPoints,
             type: "FeatureCollection",
         }
@@ -96,7 +96,7 @@ export class FindStructure {
             }, 5000);
         });
     }
-    private paintInvalidInDangerZone(img: HTMLImageElement, shape: GeoJson): Promise<string> {
+    private paintInvalidInDangerZone(img: HTMLImageElement, shape: GeoJSON.FeatureCollection<Polygon>): Promise<string> {
         const colorManager = new ColorFinder(img);
         return new Promise((resolve) => {
             Array.from(Array(colorManager.canvas.width).keys()).forEach((x) => {

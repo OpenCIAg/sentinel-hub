@@ -1,3 +1,4 @@
+import { Feature, Polygon } from "geojson";
 
 export interface latLong {
     lat: string
@@ -6,16 +7,7 @@ export interface latLong {
 export interface GeoJsonFeatureGeomety {
     "type": string; "coordinates": number[][][]|any;
 }
-export interface GeoJsonFeature {
-    "type": string
-    "properties": {},
-    "geometry": GeoJsonFeatureGeomety
-}
-export interface GeoJson {
-    "type": string,
-    "features": GeoJsonFeature[]
-
-}
+export type AceptedFeatures  = Feature<Polygon>
 export interface BoxCordsSimple {
     topLeft: number[]
     bottonRight: number[]

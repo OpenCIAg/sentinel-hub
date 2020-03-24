@@ -22,6 +22,7 @@
     "ts-jsdoc": "^3.1.1"
   },
   "dependencies": {
+    "@types/geojson": "^7946.0.7",
     "moment": "^2.24.0"
   }
 }

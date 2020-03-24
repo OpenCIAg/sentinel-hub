@@ -1,8 +1,9 @@
-import { GeoJson, GeoJsonFeature } from "./interfaces";
+
 import { LagLngXY } from "./LagLngXY";
+import { Polygon, Feature } from "geojson";
 
 export namespace Cropper {
-    export function getLagLngXY(geoJson: GeoJson) {
+    export function getLagLngXY(geoJson: GeoJSON.FeatureCollection<Polygon>) {
         const toReturn: LagLngXY[] = [];
         geoJson.features.forEach((element) => {
             const lowerLat = element.geometry.coordinates[0].map((r) => r[1]).reduce((e, j) => j < e ? e : j);
@@ -14,7 +15,7 @@ export namespace Cropper {
         });
         return toReturn;
     }
-    export function cropImage(feature: GeoJsonFeature, img: string, latLongXY: LagLngXY): Promise<{ img: string, LatLng: [number[], number[]] }> {
+    export function cropImage(feature: Feature<Polygon>, img: string, latLongXY: LagLngXY): Promise<{ img: string, LatLng: [number[], number[]] }> {
         return new Promise((r, f) => {
             const image: HTMLImageElement = document.createElement("img");
             image.src = img;

@@ -1,20 +1,20 @@
 import { Cropper } from "./Cropper";
 import { GetMap } from "./GetMap";
-import { GeoJson, GeoJsonFeature } from "./interfaces";
 import { LagLngXY } from "./LagLngXY";
 import { WMSParameters } from "./WMSParameters";
 import { ColorFinder } from "./colorPiker";
 import { FindStructure } from "./findStructure";
+import { Polygon, Feature } from "geojson";
 
 export { WMSParameters } from "./WMSParameters";
 export namespace SentinelHubWms {
-    export async function getShapesFromSentinel(geoJson: GeoJson, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
+    export async function getShapesFromSentinel(geoJson: GeoJSON.FeatureCollection<Polygon>, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
         try {
             const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
             const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
-            let packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
-            packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
-                const packagesP: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> = [];
+            let packages: Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon>, link: string }> | void = [];
+            packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon> }> | void> => {
+                const packagesP: Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon>, link: string }> = [];
                 for (let i = 0; i < PolygonRestrains.length; i++) {
                     const LatLngXY = PolygonRestrains[i];
                     getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
@@ -37,13 +37,13 @@ export namespace SentinelHubWms {
             throw new Error(e);
         }
     }
-    export async function getShapesFromImage(img: Blob, geoJson: GeoJson): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
+    export async function getShapesFromImage(img: Blob, geoJson: GeoJSON.FeatureCollection<Polygon>): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
         try {
             const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
             const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
-            let packages: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> | void = [];
-            packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature }> | void> => {
-                const packagesP: Array<{ data: string, latLng: LagLngXY, feature: GeoJsonFeature, link: string }> = [];
+            let packages: Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon>, link: string }> | void = [];
+            packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon> }> | void> => {
+                const packagesP: Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon>, link: string }> = [];
                 for (let i = 0; i < PolygonRestrains.length; i++) {
                     const LatLngXY = PolygonRestrains[i];
 
@@ -64,7 +64,7 @@ export namespace SentinelHubWms {
             throw new Error(e);
         }
     }
-    export async function getShapeFromSentinel(feature: GeoJsonFeature, uuid: string, options: { removeRoof: boolean, date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
+    export async function getShapeFromSentinel(feature: Feature<Polygon>, uuid: string, options: { removeRoof: boolean, date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
         try {
             if (options.removeRoof) {
                 return await new FindStructure(uuid, feature, options.date).getInvalidPixels();
@@ -79,8 +79,8 @@ export namespace SentinelHubWms {
             throw new Error(e);
         }
     }
-    export async function getDangerZone(feature: GeoJsonFeature, image: string | HTMLImageElement): Promise<GeoJson> {
-        const geoJson: GeoJson = {
+    export async function getDangerZone(feature: Feature<Polygon>, image: string | HTMLImageElement): Promise<GeoJSON.FeatureCollection<Polygon>> {
+        const geoJson: GeoJSON.FeatureCollection<Polygon> = {
             "type": "FeatureCollection",
             "features": []
         };
@@ -106,7 +106,7 @@ export namespace SentinelHubWms {
         });
         return geoJson;
     }
-    export async function getShapeFromImage(img: Blob, feature: GeoJsonFeature): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
+    export async function getShapeFromImage(img: Blob, feature: Feature<Polygon>): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
         try {
             const latLng = latLngToXYTool(feature);
             const objImg = { blob: img, link: "" };
@@ -129,7 +129,7 @@ export namespace SentinelHubWms {
      * Uses a GeoJSON to an array of objects that can make several transformation to use a GeoJSON features as shapes, just like a GIS system
      * @param geoJson ;
      */
-    export function latLngToXYTool(geoJson: GeoJson | GeoJsonFeature) {
+    export function latLngToXYTool(geoJson: GeoJSON.FeatureCollection<Polygon> | Feature<Polygon>) {
         if (("features" in geoJson)) {
             return Cropper.getLagLngXY(geoJson);
         } else {
@@ -139,7 +139,7 @@ export namespace SentinelHubWms {
             });
         }
     }
-    export function createShapeAsImage(feature: GeoJsonFeature, img: string, latLongXY: LagLngXY) {
+    export function createShapeAsImage(feature: Feature<Polygon>, img: string, latLongXY: LagLngXY) {
         return Cropper.cropImage(feature, img, latLongXY);
     }
 }

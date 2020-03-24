@@ -1,5 +1,5 @@
 import { SentinelHubWms } from "./index";
-import { GeoJson, GeoJsonFeature } from "./interfaces";
+import { Feature, Polygon } from "geojson";
 
 declare module IGeoJsonPoint {
 
@@ -42,9 +42,9 @@ export class ColorFinder {
     public map(x: number, in_min: number, in_max: number, out_min: number, out_max: number): number {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
-    public getfindColor(geoJson: GeoJsonFeature): Promise<GeoJsonFeature[]> {
+    public getfindColor(geoJson: Feature<Polygon>): Promise<Feature<Polygon>[]> {
         return new Promise((resolve) => {
-            const FeatureGrop: GeoJsonFeature[] = [];
+            const FeatureGrop: Feature<Polygon>[] = [];
             Array.from(Array(this.canvas.width).keys()).forEach((x) => {
                 Array.from(Array(this.canvas.height).keys()).forEach((y) => {
                     const data = this.canvas.getContext("2d").getImageData(x, y, 1, 1).data;
@@ -53,10 +53,10 @@ export class ColorFinder {
 
                         const mapy = (this.map(y + 0.4, 0, this.height, latLong.pMin.lat, latLong.pMax.lat));
                         const mapx = this.map(((x - this.width) * -1) - 0.4, 0, this.width, latLong.pMin.lng, latLong.pMax.lng);
-                        const feature: GeoJsonFeature = {
+                        const feature: Feature<Polygon> = {
                             geometry: {
-                                coordinates: [mapy, mapx],
-                                type: "Point",
+                                coordinates: [[[mapy, mapx]]],
+                                type: "Polygon",
                             },
                             properties: {},
                             type: "Feature",
