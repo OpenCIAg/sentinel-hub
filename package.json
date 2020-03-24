@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@types/geojson": "^7946.0.7",
-    "moment": "^2.24.0"
+    "moment": "^2.24.0",
+    "typescript": "^3.8.3"
   }
 }

@@ -9,7 +9,6 @@
     "outDir": "./lib",
     "strictNullChecks": false,
     "noImplicitAny": false,
-    // "strict": true,
     "rootDir": "./src/",
     "moduleResolution": "node",
     "lib": [
