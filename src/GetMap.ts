@@ -37,7 +37,7 @@ export class GetMap {
 
 
     // The preconfigured layer (image) to be returned. You must specify exactly one layer and optionally add additional overlays. Required. Example: LAYERS=TRUE_COLOR,OUTLINE
-    private LAYERS: WMSParameters.Sentinel_2[] = [WMSParameters.Sentinel_2.True_color];
+    private LAYERS: WMSParameters.Sentinel_2[] = [WMSParameters.Sentinel_2.TRUE_COLOR];
 
 
     // The exception format. Optional, default: "XML". Supported values: "XML", "INIMAGE", "BLANK" (all three for version >= 1.3.0), "application/vnd.ogc.se_xml", "application/vnd.ogc.se_inimage", "application/vnd.ogc.se_blank" (all three for version < 1.3.0).
@@ -45,6 +45,7 @@ export class GetMap {
 
     private DATE: Date = new Date();
 
+    public proxy: string
 
     constructor(UUID: string, params: { DATE: Date, BBOX: [number[], number[]], CRS?: string, SRS?: string, FORMAT: WMSParameters.Format, WIDTH?: string, HEIGHT?: string, RESX?: string, RESY?: string, BGCOLOR?: WMSParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: WMSParameters.Sentinel_2[], EXCEPTIONS?: WMSParameters.Exceptions }) {
         this.DATE = params.DATE ? params.DATE : this.DATE;
@@ -99,8 +100,8 @@ export class GetMap {
         return d * 1000; // meters
     }
     private get_requestLink() {
-        const link = new SentinelHubURL();
-        link.addUUID(this.UUID);
+        const link = new SentinelHubURL(this.proxy);
+        if (!this.proxy) { link.addUUID(this.UUID); }
         if (this.BBOX) { link.addParameter("BBOX", this.BBOX.toString()); }
         if (this.CRS) { link.addParameter("CRS", this.CRS); }
         if (this.SRS) { link.addParameter("SRS", this.SRS); }
@@ -113,7 +114,8 @@ export class GetMap {
         if (this.EXCEPTIONS) { link.addParameter("EXCEPTIONS", this.EXCEPTIONS); }
         link.setTimeFrom(this.DATE);
         // link.setTimeTo(new Date("01/01/2018"))
-        return link.toString();
-    }
+        if (this.proxy) { return link.getProxy() }
+        else { return link.getLink() };
+}
 
 }

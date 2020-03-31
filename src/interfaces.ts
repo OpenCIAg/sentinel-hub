@@ -1,4 +1,6 @@
 import { Feature, Polygon } from "geojson";
+import { WMSParameters } from "./WMSParameters";
+
 
 export interface latLong {
     lat: string
@@ -12,4 +14,15 @@ export interface BoxCordsSimple {
     topLeft: number[]
     bottonRight: number[]
 }
-// import {  } from "module";
+export type ICroppedImage = {
+    img: string;
+    feature: Feature<Polygon>;
+    bbox: [number[], number[]];
+    link: string;
+};
+
+export type getFromSentinelOptions = {
+    proxy?:string
+    date: Date;
+    layers: WMSParameters.Sentinel_2[];
+};

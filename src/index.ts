@@ -1,85 +1,58 @@
-import { Cropper } from "./Cropper";
 import { GetMap } from "./GetMap";
-import { LagLngXY } from "./LagLngXY";
+import { Feature, Polygon, FeatureCollection } from "geojson";
+import { Cropper } from "./Cropper";
+import { Observable, defer, from } from 'rxjs'
+import { getFromSentinelOptions, ICroppedImage } from "./interfaces";
 import { WMSParameters } from "./WMSParameters";
 import { ColorFinder } from "./colorPiker";
-import { FindStructure } from "./findStructure";
-import { Polygon, Feature } from "geojson";
-
+import { LagLngXY } from "./LagLngXY";
 export { WMSParameters } from "./WMSParameters";
 export namespace SentinelHubWms {
-    export async function getShapesFromSentinel(geoJson: GeoJSON.FeatureCollection<Polygon>, uuid: string, options: { date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
-        try {
-            const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
-            const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
-            let packages: Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon>, link: string }> | void = [];
-            packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon> }> | void> => {
-                const packagesP: Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon>, link: string }> = [];
-                for (let i = 0; i < PolygonRestrains.length; i++) {
-                    const LatLngXY = PolygonRestrains[i];
-                    getImage(uuid, LatLngXY.getBobxConnors(), options).then(async (data) => {
-                        packagesP.push({ data: URL.createObjectURL(data.blob), latLng: LatLngXY, feature: geoJson.features[i], link: data.link });
-                        if (i + 1 === PolygonRestrains.length) { resolve(packagesP); }
-                    }, (e) => {
-                        throw new Error(e);
-                    });
+    export async function  getShapeFromSentinel(feature: Feature<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage> {
+        const latLng = latLngToXYTool(feature);
+        const sentinelResult = await getImage(uuid,latLng[0].getBobxConnors() , options)
+        const latLngTool = latLngToXYTool(feature)[0];
+        const shape = await Cropper.cropImage(feature, URL.createObjectURL(sentinelResult.blob), latLngTool);
+        return { img: shape.img, feature, bbox: shape.LatLng, link: sentinelResult.link };
+    }
+    export async function   getShapesFromSentinel(featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage[]> {
+        const promises = featureCollection.features.map(i => getShapeFromSentinel(i, uuid, options))
+        return await Promise.all(
+            promises.map(async p => {
+                try {
+                    return await p
+                } catch (e) {
+                    console.error(e)
+                    return undefined
                 }
+            }).filter(i => !!i))
+    }
+
+    export function getShapeFromSentinelAsync(feature: Feature<Polygon>, uuid: string, options: getFromSentinelOptions): Observable<ICroppedImage> {
+        return defer(() => from(getShapeFromSentinel(feature, uuid, options)))
+    }
+
+    export function getShapesFromSentinelAsync(featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions): Observable<ICroppedImage>[] {
+        return featureCollection.features.map(feature => defer(() => from(getShapeFromSentinel(feature, uuid, options))))
+    }
+
+    export async function  getImage(uuid: string = "", bbox: [number[], number[]], options: getFromSentinelOptions) {
+        const getMap = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: WMSParameters.Format.image_png, LAYERS: options.layers, WIDTH: "1024", HEIGHT: "780" });
+        if(options.proxy) getMap.proxy = options.proxy
+        return await getMap.request();
+    }
+
+    export function latLngToXYTool(geoJson: GeoJSON.FeatureCollection<Polygon> | Feature<Polygon>) {
+        if (("features" in geoJson)) {
+            return Cropper.getLagLngXY(geoJson);
+        } else {
+            return Cropper.getLagLngXY({
+                features: [geoJson],
+                type: "FeatureCollection",
             });
-            if (packages) {
-                for (const element of packages) {
-                    const shape = await createShapeAsImage(element.feature, element.data, element.latLng);
-
-                    packageResult.push({ img: shape.img, LatLng: shape.LatLng, link: element.link });
-                }
-            }
-            return packageResult;
-        } catch (e) {
-            throw new Error(e);
         }
     }
-    export async function getShapesFromImage(img: Blob, geoJson: GeoJSON.FeatureCollection<Polygon>): Promise<Array<{ img: string, LatLng: [number[], number[]], link: string }>> {
-        try {
-            const PolygonRestrains = SentinelHubWms.latLngToXYTool(geoJson);
-            const packageResult: Array<{ img: string, LatLng: [number[], number[]], link: string }> = [];
-            let packages: Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon>, link: string }> | void = [];
-            packages = await new Promise(async (resolve): Promise<Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon> }> | void> => {
-                const packagesP: Array<{ data: string, latLng: LagLngXY, feature: Feature<Polygon>, link: string }> = [];
-                for (let i = 0; i < PolygonRestrains.length; i++) {
-                    const LatLngXY = PolygonRestrains[i];
-
-                    const objImg = { blob: img, link: "" };
-                    packagesP.push({ data: URL.createObjectURL(objImg.blob), latLng: LatLngXY, feature: geoJson.features[i], link: objImg.link });
-                    if (i + 1 === PolygonRestrains.length) { resolve(packagesP); }
-                }
-            });
-            if (packages) {
-                for (const element of packages) {
-                    const shape = await createShapeAsImage(element.feature, element.data, element.latLng);
-
-                    packageResult.push({ img: shape.img, LatLng: shape.LatLng, link: element.link });
-                }
-            }
-            return packageResult;
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-    export async function getShapeFromSentinel(feature: Feature<Polygon>, uuid: string, options: { removeRoof: boolean, date: Date, layers: WMSParameters.Sentinel_2[] }): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
-        try {
-            if (options.removeRoof) {
-                return await new FindStructure(uuid, feature, options.date).getInvalidPixels();
-            }
-            else {
-                const latLng = latLngToXYTool(feature);
-                const image = await getImage(uuid, latLng[0].getBobxConnors(), options);
-                const shape = await createShapeAsImage(feature, URL.createObjectURL(image.blob), latLng[0]);
-                return { img: shape.img, LatLng: shape.LatLng, link: image.link };
-            }
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-    export async function getDangerZone(feature: Feature<Polygon>, image: string | HTMLImageElement): Promise<GeoJSON.FeatureCollection<Polygon>> {
+    export async function  getDangerZone(feature: Feature<Polygon>, image: string | HTMLImageElement): Promise<GeoJSON.FeatureCollection<Polygon>> {
         const geoJson: GeoJSON.FeatureCollection<Polygon> = {
             "type": "FeatureCollection",
             "features": []
@@ -105,39 +78,6 @@ export namespace SentinelHubWms {
             geoJson.features.push(item);
         });
         return geoJson;
-    }
-    export async function getShapeFromImage(img: Blob, feature: Feature<Polygon>): Promise<{ img: string, LatLng: [number[], number[]], link: string }> {
-        try {
-            const latLng = latLngToXYTool(feature);
-            const objImg = { blob: img, link: "" };
-            const shape = await createShapeAsImage(feature, URL.createObjectURL(objImg.blob), latLng[0]);
-            return { img: shape.img, LatLng: shape.LatLng, link: objImg.link };
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-    /**
-     * @param uuid;
-     * @param bbox;
-     * @param layers
-     */
-    export async function getImage(uuid: string, bbox: [number[], number[]], options: { date: Date, layers: WMSParameters.Sentinel_2[] }) {
-        const getMap = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: WMSParameters.Format.image_png, LAYERS: options.layers, WIDTH: "1024", HEIGHT: "780" });
-        return await getMap.request();
-    }
-    /**
-     * Uses a GeoJSON to an array of objects that can make several transformation to use a GeoJSON features as shapes, just like a GIS system
-     * @param geoJson ;
-     */
-    export function latLngToXYTool(geoJson: GeoJSON.FeatureCollection<Polygon> | Feature<Polygon>) {
-        if (("features" in geoJson)) {
-            return Cropper.getLagLngXY(geoJson);
-        } else {
-            return Cropper.getLagLngXY({
-                features: [geoJson],
-                type: "FeatureCollection",
-            });
-        }
     }
     export function createShapeAsImage(feature: Feature<Polygon>, img: string, latLongXY: LagLngXY) {
         return Cropper.cropImage(feature, img, latLongXY);

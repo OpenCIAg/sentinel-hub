@@ -17,14 +17,15 @@ export namespace WMSParameters {
         AARRGGBB = "AARRGGBB",
     }
     export enum Sentinel_2 {
-        True_color = "TRUE_COLOR",
-        False_color = "FALSE_COLOR",
-        False_color_urban = "FALSE_COLOR_URBAN",
-        NDVI = "NDVI",
-        Moisture_index = "MOISTURE_INDEX",
-        SWIR = "SWIR",
-        NDWI = "NDWI",
-        NDSI = "NDSI",
+        NDVI="NDVI",
+        FALSE_COLOR="FALSE_COLOR",
+        FALSE_COLOR_URBAN="FALSE_COLOR_URBAN",
+        AGRICULTURE = "AGRICULTURE",
+        BATHYMETRIC = "BATHYMETRIC",
+        GEOLOGY = "GEOLOGY",
+        MOISTURE_INDEX = "MOISTURE_INDEX",
+        SWIR="SWIR",
+        TRUE_COLOR="TRUE_COLOR"
     }
     export enum Exceptions {
         XML = "XML",

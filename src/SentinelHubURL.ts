@@ -1,13 +1,12 @@
 export class SentinelHubURL {
     public parameters = [];
     public link: string;
-    public preset = "https://services.sentinel-hub.com/ogc/wms/";
+   
     public request = "REQUEST=GetMap";
     public UUID: string;
     public timeFrom = null;
     public timeTo = null;
-    constructor() {
-        this.link = this.preset;
+    constructor(public preset = "https://services.sentinel-hub.com/ogc/wms/") {
     }
     public addUUID(uuid: string) { this.UUID = uuid; }
     public addParameter(name: string, value: any) {
@@ -23,8 +22,12 @@ export class SentinelHubURL {
         this.timeFrom = null;
         this.timeTo = null;
     }
-    public toString() {
+    public getLink() {
         this.link = this.preset + this.UUID + "?" + this.request + "&" + this.getLinkTime() + this.parameters.join("&");
+        return this.link;
+    }
+    public getProxy() {
+        this.link = this.preset + '?' + this.request + "&" + this.getLinkTime() + this.parameters.join("&");
         return this.link;
     }
     private getLinkTime() {

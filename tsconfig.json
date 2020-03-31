@@ -13,7 +13,8 @@
     "moduleResolution": "node",
     "lib": [
       "dom",
-      "es2015"
+      "es2015",
+      "ES2020"
     ],
   },
   "include": ["src"],
