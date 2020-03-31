@@ -6,7 +6,7 @@ export class SentinelHubURL {
     public UUID: string;
     public timeFrom = null;
     public timeTo = null;
-    constructor(public preset = "https://services.sentinel-hub.com/ogc/wms/") {
+    constructor(public preset:RequestInfo = "https://services.sentinel-hub.com/ogc/wms/") {
     }
     public addUUID(uuid: string) { this.UUID = uuid; }
     public addParameter(name: string, value: any) {

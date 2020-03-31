@@ -8,14 +8,14 @@ import { ColorFinder } from "./colorPiker";
 import { LagLngXY } from "./LagLngXY";
 export { WMSParameters } from "./WMSParameters";
 export namespace SentinelHubWms {
-    export async function  getShapeFromSentinel(feature: Feature<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage> {
+    export async function getShapeFromSentinel(feature: Feature<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage> {
         const latLng = latLngToXYTool(feature);
-        const sentinelResult = await getImage(uuid,latLng[0].getBobxConnors() , options)
+        const sentinelResult = await getImage(uuid, latLng[0].getBobxConnors(), options)
         const latLngTool = latLngToXYTool(feature)[0];
         const shape = await Cropper.cropImage(feature, URL.createObjectURL(sentinelResult.blob), latLngTool);
         return { img: shape.img, feature, bbox: shape.LatLng, link: sentinelResult.link };
     }
-    export async function   getShapesFromSentinel(featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage[]> {
+    export async function getShapesFromSentinel(featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage[]> {
         const promises = featureCollection.features.map(i => getShapeFromSentinel(i, uuid, options))
         return await Promise.all(
             promises.map(async p => {
@@ -36,9 +36,10 @@ export namespace SentinelHubWms {
         return featureCollection.features.map(feature => defer(() => from(getShapeFromSentinel(feature, uuid, options))))
     }
 
-    export async function  getImage(uuid: string = "", bbox: [number[], number[]], options: getFromSentinelOptions) {
+    export async function getImage(uuid: string = "", bbox: [number[], number[]], options: getFromSentinelOptions) {
         const getMap = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: WMSParameters.Format.image_png, LAYERS: options.layers, WIDTH: "1024", HEIGHT: "780" });
-        if(options.proxy) getMap.proxy = options.proxy
+        if (options.proxy) getMap.proxy = options.proxy
+        if (options.proxyOption) getMap.proxyOptions = options.proxyOption
         return await getMap.request();
     }
 
@@ -52,7 +53,7 @@ export namespace SentinelHubWms {
             });
         }
     }
-    export async function  getDangerZone(feature: Feature<Polygon>, image: string | HTMLImageElement): Promise<GeoJSON.FeatureCollection<Polygon>> {
+    export async function getDangerZone(feature: Feature<Polygon>, image: string | HTMLImageElement): Promise<GeoJSON.FeatureCollection<Polygon>> {
         const geoJson: GeoJSON.FeatureCollection<Polygon> = {
             "type": "FeatureCollection",
             "features": []

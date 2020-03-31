@@ -22,7 +22,8 @@ export type ICroppedImage = {
 };
 
 export type getFromSentinelOptions = {
-    proxy?:string
+    proxy?:RequestInfo
+    proxyOption?:RequestInit
     date: Date;
     layers: WMSParameters.Sentinel_2[];
 };

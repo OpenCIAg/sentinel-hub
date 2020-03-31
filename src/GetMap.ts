@@ -45,7 +45,9 @@ export class GetMap {
 
     private DATE: Date = new Date();
 
-    public proxy: string
+    public proxy: RequestInfo
+
+    public proxyOptions: RequestInit = {}
 
     constructor(UUID: string, params: { DATE: Date, BBOX: [number[], number[]], CRS?: string, SRS?: string, FORMAT: WMSParameters.Format, WIDTH?: string, HEIGHT?: string, RESX?: string, RESY?: string, BGCOLOR?: WMSParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: WMSParameters.Sentinel_2[], EXCEPTIONS?: WMSParameters.Exceptions }) {
         this.DATE = params.DATE ? params.DATE : this.DATE;
@@ -79,7 +81,7 @@ export class GetMap {
     }
     public async request() {
         try {
-            return await (fetch(this.get_requestLink()).then(async (res) => {
+            return await (fetch(this.get_requestLink(),this.proxyOptions).then(async (res) => {
                 const result = { link: res.url, blob: null };
                 result.blob = await res.blob();
                 return result;
