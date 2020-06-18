@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+      "declaration": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "target": "es6",
+      "module": "commonjs",
+      "outDir": "dist",
+      "strictNullChecks": false,
+      "noImplicitAny": false,
+      "rootDir": "./src/",
+      "sourceMap": true,
+      "moduleResolution": "node",
+      "lib": [
+        "dom",
+        "es2015",
+        "ES2020"
+      ],
+    },
+    "include": ["**/index.ts"],
+    "exclude": ["node_modules", "**/__tests__/*","**/_debug/*"]
+  }

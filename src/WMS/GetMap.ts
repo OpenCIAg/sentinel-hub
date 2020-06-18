@@ -1,6 +1,7 @@
 import { WMSParameters } from "./WMSParameters";
 import { BoxCords } from "./BoxCords";
 import { SentinelHubURL } from "./SentinelHubURL";
+import { _SafeFetch } from "..";
 
 
 export class GetMap {
@@ -81,7 +82,7 @@ export class GetMap {
     }
     public async request() {
         try {
-            return await (fetch(this.get_requestLink(),this.proxyOptions).then(async (res) => {
+            return await (_SafeFetch(this.get_requestLink(), this.proxyOptions).then(async (res) => {
                 const result = { link: res.url, blob: null };
                 result.blob = await res.blob();
                 return result;
@@ -118,6 +119,6 @@ export class GetMap {
         // link.setTimeTo(new Date("01/01/2018"))
         if (this.proxy) { return link.getProxy() }
         else { return link.getLink() };
-}
+    }
 
 }

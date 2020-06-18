@@ -1,8 +1,8 @@
 {
   "name": "@ciag/sentinel-hub-wms",
   "private": false,
-  "version": "2.1.1",
-  "description": "a API to collect data via wms from the sentinel-hub based in geoJson features(shapes)",
+  "version": "3.0.0",
+  "description": "a API to create the sentinel ogs requests, and tools to apply on the data",
   "main": "dist/index.js",
   "keywords": [
     "sentinel-hub",
@@ -26,8 +26,9 @@
     "geojson-bbox": "0.0.0",
     "i": "^0.3.6",
     "moment": "^2.24.0",
+    "node-fetch": "^2.6.0",
     "npm": "^6.14.3",
-    "rxjs": "^6.5.4",
+    "rxjs": "^6.5.5",
     "typescript": "^3.8.3"
   }
 }
