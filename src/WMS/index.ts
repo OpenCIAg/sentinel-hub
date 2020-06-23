@@ -37,7 +37,7 @@ export namespace SentinelHubWms {
      * `RxJs Version`
      */
 
-    export const getShapeFromSentinelAsync = (...args: ArgumentTypes<typeof getShapeFromSentinel>) => defer(() => from(getShapeFromSentinel(...args)))
+    export const getShapeFromSentinelAsync = (feature: Feature<Polygon>, uuid: string, options: getFromSentinelOptions) => defer(() => from(getShapeFromSentinel(feature,uuid,options)))
 
     /**
      * @description used to get multiple sentinel's satellite image of a collection of polygons, with the image cropped for the polygon
@@ -59,7 +59,7 @@ export namespace SentinelHubWms {
     * @description used to get multiple sentinel's satellite image of a collection of polygons, with the image cropped for the polygon
     * `RxJs Version`
     */
-    export const getShapesFromSentinelAsync = (...args: ArgumentTypes<typeof getShapesFromSentinel>) => args[0].features.map(feature => defer(() => from(getShapeFromSentinel(feature, args[1], args[2]))))
+    export const getShapesFromSentinelAsync = (featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions) => featureCollection.features.map(feature => defer(() => from(getShapeFromSentinel(feature, uuid, options))))
 
     /**
      * @description used to get the sentinel's satellite image of a square

@@ -48,7 +48,6 @@ export namespace SentinelHubWfs {
         options.TYPENAMES ? rawRequsstOptions.TYPENAMES = options.TYPENAMES : null;
 
         // formatting Object dates to the paremater TIMES that the GetFeatures acepts (TIME=2019-01-01/2019-04-23)
-        console.log(options)
         if (options.DATE_START && options.DATE_END) {
             const formatedDates = [options.DATE_START, options.DATE_END]
                 .map(i => i.toISOString().split('T')[0])
@@ -78,7 +77,6 @@ export namespace SentinelHubWfs {
              */
             link = request.getDirectLink(uuid)
         }
-        console.log(link)
         return new Promise(r =>
             r(_SafeFetch(link, requestOption))
         )

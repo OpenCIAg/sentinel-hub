@@ -1,7 +1,7 @@
 {
   "name": "@ciag/sentinel-hub-wms",
   "private": false,
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "a API to create the sentinel ogs requests, and tools to apply on the data",
   "main": "dist/index.js",
   "keywords": [
