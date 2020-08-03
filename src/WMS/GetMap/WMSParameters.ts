@@ -1,5 +1,5 @@
 // tslint:disable-next-line: no-namespace
-export namespace WMSParameters {
+export namespace GetMapParameters {
     export enum Format {
         image_png = "image/png",
         image_jpeg = "image/jpeg",

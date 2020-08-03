@@ -1,7 +1,8 @@
-import { WMSParameters } from "./WMSParameters";
+import { GetMapParameters } from "./WMSParameters";
 import { BoxCords } from "./BoxCords";
 import { SentinelHubURL } from "./SentinelHubURL";
-import { _SafeFetch } from "..";
+import { _SafeFetch } from "../..";
+import { BBox } from "geojson";
 
 
 export class GetMap {
@@ -16,7 +17,7 @@ export class GetMap {
     private SRS: string = "EPSG:3857";
 
     // The returned image format. Optional, default: "image/png". Detailed information about supported values.
-    private FORMAT: WMSParameters.Format = WMSParameters.Format.image_png;
+    private FORMAT: GetMapParameters.Format = GetMapParameters.Format.image_png;
 
     // Returned image width in pixels. Required, unless RESX is used.
     private WIDTH: string = null;
@@ -31,18 +32,18 @@ export class GetMap {
     private RESY: string = null;
 
     // Default background color. Option, default: "FFFFFF". Supported formats: "0xRRGGBB", "0xAARRGGBB", "#RRGGBB", "#AARRGGBB", "RRGGBB", "AARRGGBB".
-    private BGCOLOR: WMSParameters.BgColor = WMSParameters.BgColor["#AARRGGBB"];
+    private BGCOLOR: GetMapParameters.BgColor = GetMapParameters.BgColor["#AARRGGBB"];
 
     // (when FORMAT = "image/png" or "image/tiff") The returned image has an alpha channel which is blank for pixels with no valid or available input data. Optional, default = "false". Supported values: "true", "false", "0", "1".
     private TRANSPARENT: boolean = false;
 
 
     // The preconfigured layer (image) to be returned. You must specify exactly one layer and optionally add additional overlays. Required. Example: LAYERS=TRUE_COLOR,OUTLINE
-    private LAYERS: WMSParameters.Sentinel_2[] = [WMSParameters.Sentinel_2.TRUE_COLOR];
+    private LAYERS: GetMapParameters.Sentinel_2[] = [GetMapParameters.Sentinel_2.TRUE_COLOR];
 
 
     // The exception format. Optional, default: "XML". Supported values: "XML", "INIMAGE", "BLANK" (all three for version >= 1.3.0), "application/vnd.ogc.se_xml", "application/vnd.ogc.se_inimage", "application/vnd.ogc.se_blank" (all three for version < 1.3.0).
-    private EXCEPTIONS: WMSParameters.Exceptions;
+    private EXCEPTIONS: GetMapParameters.Exceptions;
 
     private DATE: Date = new Date();
 
@@ -50,13 +51,10 @@ export class GetMap {
 
     public proxyOptions: RequestInit = {}
 
-    constructor(UUID: string, params: { DATE: Date, BBOX: [number[], number[]], CRS?: string, SRS?: string, FORMAT: WMSParameters.Format, WIDTH?: string, HEIGHT?: string, RESX?: string, RESY?: string, BGCOLOR?: WMSParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: WMSParameters.Sentinel_2[], EXCEPTIONS?: WMSParameters.Exceptions }) {
+    constructor(UUID: string, params: { DATE: Date, BBOX: BBox, CRS?: string, SRS?: string, FORMAT: GetMapParameters.Format, WIDTH?: string, HEIGHT?: string, RESX?: string, RESY?: string, BGCOLOR?: GetMapParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: GetMapParameters.Sentinel_2[], EXCEPTIONS?: GetMapParameters.Exceptions }) {
         this.DATE = params.DATE ? params.DATE : this.DATE;
         this.UUID = UUID;
-        this.BBOX = new BoxCords({
-            botton_right: { lat: "" + params.BBOX[0][0], long: "" + params.BBOX[0][1] },
-            top_left: { lat: "" + params.BBOX[1][0], long: "" + params.BBOX[1][1] },
-        });
+        this.BBOX = new BoxCords(params.BBOX);
         this.CRS = params.CRS ? params.CRS : this.CRS;
         if (!this.CRS && params.SRS) {
             this.SRS = params.SRS;
@@ -72,8 +70,8 @@ export class GetMap {
             this.RESX = params.RESX;
             this.RESY = params.RESY;
         } else {
-            this.RESX = this.measure(this.BBOX.topLeft.lat, this.BBOX.topLeft.long, this.BBOX.topLeft.lat, this.BBOX.bottonRight.long).toFixed() + "m";
-            this.RESY = this.measure(this.BBOX.topLeft.lat, this.BBOX.topLeft.long, this.BBOX.bottonRight.lat, this.BBOX.topLeft.long).toFixed() + "m";
+            this.RESX = this.measure(this.BBOX.TOP_LEFT.LAT, this.BBOX.TOP_LEFT.LONG, this.BBOX.TOP_LEFT.LAT, this.BBOX.BOTTON_RIGHT.LONG).toFixed() + "m";
+            this.RESY = this.measure(this.BBOX.TOP_LEFT.LAT, this.BBOX.TOP_LEFT.LONG, this.BBOX.BOTTON_RIGHT.LAT, this.BBOX.TOP_LEFT.LONG).toFixed() + "m";
         }
         this.BGCOLOR = params.BGCOLOR ? params.BGCOLOR : this.BGCOLOR;
         this.TRANSPARENT = params.TRANSPARENT ? params.TRANSPARENT : this.TRANSPARENT;
@@ -116,7 +114,6 @@ export class GetMap {
         if (this.LAYERS) { link.addParameter("LAYERS", this.LAYERS); }
         if (this.EXCEPTIONS) { link.addParameter("EXCEPTIONS", this.EXCEPTIONS); }
         link.setTimeFrom(this.DATE);
-        // link.setTimeTo(new Date("01/01/2018"))
         if (this.proxy) { return link.getProxy() }
         else { return link.getLink() };
     }

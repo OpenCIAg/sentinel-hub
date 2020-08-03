@@ -17,16 +17,14 @@ export namespace SentinelHubWfs {
     }
 
     /**
-    * @description Used to create a Fetch based on the BBOX of the provided polygon(s) 
-    * 
-    *  it can be created with a proxy URL
-    * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
-    */
-    export function GetFeature(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string): Promise<Response>;
-    export function GetFeature(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, options: GetFeaturesRequestOptions): Promise<Response>;
+     * @description Used to create a Fetch based on the BBOX of the provided polygon(s)
+     *
+     *  it can be created with a proxy URL
+     * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
+     */
     export function GetFeature(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, options: GetFeaturesRequestOptions, proxy: RequestInfo, requestOption?: RequestInit): Promise<Response>;
     export function GetFeature(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, options: GetFeaturesRequestOptions = defaultGetDateOptions, proxy: RequestInfo = null, requestOption: RequestInit = null): Promise<Response> {
-        //merge the defalt options with the user's options without ever changeing the reference to the original object
+        // merge the defalt options with the user's options without ever changeing the reference to the original object
         options = Object.assign(Object.assign({}, defaultGetDateOptions), options)
 
         // getting the bbox(aka the top left connor and the bottong right connor of the combined polygons as a square ) and formatting for the sentinel urls format
@@ -70,7 +68,7 @@ export namespace SentinelHubWfs {
             link = request.getProxyLink(proxy)
         } else {
             /**
-             * direct sentinel link 
+             * direct sentinel link
              * @example ```
              *  'https://services.sentinel-hub.com/ogc/wfs/{uuid}?REQUEST=GetFeature...
              * ```
@@ -83,14 +81,12 @@ export namespace SentinelHubWfs {
     }
 
     /**
-    * @description Used to create a Fetch based on the BBOX of the provided polygon(s)
-    * `RxJs Version`
-    * 
-    *  it can be created with a proxy URL
-    * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
-    */
-    export function GetFeatureAsync(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string): Observable<Response>;
-    export function GetFeatureAsync(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, options: GetFeaturesRequestOptions): Observable<Response>;
+     * @description Used to create a Fetch based on the BBOX of the provided polygon(s)
+     * `RxJs Version`
+     *
+     *  it can be created with a proxy URL
+     * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
+     */
     export function GetFeatureAsync(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, options: GetFeaturesRequestOptions, proxy: RequestInfo, requestOption?: RequestInit): Observable<Response>;
     export function GetFeatureAsync(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, options: GetFeaturesRequestOptions = defaultGetDateOptions, proxy: RequestInfo = null, requestOption: RequestInit = null): Observable<Response> {
         // corverts js promise to RxJs observable
@@ -98,11 +94,11 @@ export namespace SentinelHubWfs {
     }
 
     /**
-    * @description Used to fetch avaliable dates for sattelite data
-    * 
-    *  it can be created with a proxy URL
-    * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
-    */
+     * @description Used to fetch avaliable dates for sattelite data
+     *
+     *  it can be created with a proxy URL
+     * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
+     */
     export async function getAvaliableDates(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, options: { from: Date, to: Date, proxy?: RequestInfo, requestOption?: RequestInit }): Promise<Date[]> {
         const requestOptions = Object.assign({}, defaultGetDateOptions)
         requestOptions.DATE_START = options.from
@@ -112,12 +108,12 @@ export namespace SentinelHubWfs {
     }
 
     /**
-    * @description Used to fetch avaliable dates for sattelite data
-    * `RxJs Version`
-    * 
-    *  it can be created with a proxy URL
-    * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
-    */
+     * @description Used to fetch avaliable dates for sattelite data
+     * `RxJs Version`
+     *
+     *  it can be created with a proxy URL
+     * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
+     */
     export const getAvaliableDatesAsync = (...args:ArgumentTypes< typeof getAvaliableDates>)=>defer(() => from(getAvaliableDates(...args)))
 
 

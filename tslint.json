@@ -4,6 +4,7 @@
         "tslint:recommended"
     ],
     "rules": {
+        "no-unused-expression":false,
         "max-line-length": {
             "options": [4120]
         },

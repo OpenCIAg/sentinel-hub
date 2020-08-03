@@ -1,9 +1,15 @@
 {
-  "name": "@ciag/sentinel-hub-wms",
+  "name": "@ciag/sentinel-hub",
   "private": false,
-  "version": "3.0.2",
+  "version": "0.0.1-beta.1",
   "description": "a API to create the sentinel ogs requests, and tools to apply on the data",
   "main": "dist/index.js",
+  "scripts": {
+    "start":"tsc -w",
+    "build":"tsc",
+    "prepublish": "npm run build",
+    "deploy":"npm publish --access public"
+  },
   "keywords": [
     "sentinel-hub",
     "geoJSON",
@@ -14,21 +20,22 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/Cadub/sentinel-hub-wms"
+    "url": "https://github.com/OpenCIAg/sentinel-hub"
   },
-  "author": "Carlos Benedetti",
+  "author": {
+    "email": "carlosbenedettidev@gmail.com",
+    "name": "Carlos Benedetti"
+  },
   "license": "ISC",
   "devDependencies": {
-    "ts-jsdoc": "^3.1.1"
+    "ts-jsdoc": "^3.1.1",
+    "@types/geojson": "^7946.0.7",
+    "tslint": "^6.1.3",
+    "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@types/geojson": "^7946.0.7",
     "geojson-bbox": "0.0.0",
-    "i": "^0.3.6",
-    "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
-    "npm": "^6.14.3",
-    "rxjs": "^6.5.5",
-    "typescript": "^3.8.3"
+    "rxjs": "^6.5.5"
   }
 }
