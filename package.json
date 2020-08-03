@@ -26,7 +26,7 @@
     "email": "carlosbenedettidev@gmail.com",
     "name": "Carlos Benedetti"
   },
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "ts-jsdoc": "^3.1.1",
     "@types/geojson": "^7946.0.7",
