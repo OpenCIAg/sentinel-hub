@@ -20,10 +20,10 @@ export class GetMap {
     private FORMAT: GetMapParameters.Format = GetMapParameters.Format.image_png;
 
     // Returned image width in pixels. Required, unless RESX is used.
-    private WIDTH: string = null;
+    private WIDTH: number = null;
 
     // Returned image height in pixels. Required, unless RESY is used.
-    private HEIGHT: string = null;
+    private HEIGHT: number = null;
 
     // Returned horizontal image resolution in UTM units (if m is added, e.g. 10m, in metrical units). (optional instead of HEIGHT)
     private RESX: string = null;
@@ -51,7 +51,7 @@ export class GetMap {
 
     public proxyOptions: RequestInit = {}
 
-    constructor(UUID: string, params: { DATE: Date, BBOX: BBox, CRS?: string, SRS?: string, FORMAT: GetMapParameters.Format, WIDTH?: string, HEIGHT?: string, RESX?: string, RESY?: string, BGCOLOR?: GetMapParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: GetMapParameters.Sentinel_2[], EXCEPTIONS?: GetMapParameters.Exceptions }) {
+    constructor(UUID: string, params: { DATE: Date, BBOX: BBox, CRS?: string, SRS?: string, FORMAT: GetMapParameters.Format, WIDTH?: number, HEIGHT?: number, RESX?: string, RESY?: string, BGCOLOR?: GetMapParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: GetMapParameters.Sentinel_2[], EXCEPTIONS?: GetMapParameters.Exceptions }) {
         this.DATE = params.DATE ? params.DATE : this.DATE;
         this.UUID = UUID;
         this.BBOX = new BoxCords(params.BBOX);
@@ -103,7 +103,7 @@ export class GetMap {
     private get_requestLink() {
         const link = new SentinelHubURL(this.proxy);
         if (!this.proxy) { link.addUUID(this.UUID); }
-        if (this.BBOX) { link.addParameter("BBOX", this.BBOX.toString()); }
+        if (this.BBOX) { link.addParameter("BBOX", this.BBOX.getBBox); }
         if (this.CRS) { link.addParameter("CRS", this.CRS); }
         if (this.SRS) { link.addParameter("SRS", this.SRS); }
         if (this.FORMAT) { link.addParameter("FORMAT", this.FORMAT); }

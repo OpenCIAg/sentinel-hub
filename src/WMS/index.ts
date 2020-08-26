@@ -5,7 +5,7 @@ import { defer, from } from 'rxjs'
 import { GetMapParameters } from "./GetMap/WMSParameters";
 import * as featureToBBox from 'geojson-bbox'
 export { GetMapParameters as WMSParameters } from "./GetMap/WMSParameters";
-export type AceptedFeatures  = Feature<Polygon>
+export type AceptedFeatures = Feature<Polygon>
 
 export type ICroppedImage = {
     img: string;
@@ -15,10 +15,12 @@ export type ICroppedImage = {
 };
 
 export type getFromSentinelOptions = {
-    proxy?:RequestInfo
-    proxyOption?:RequestInit
+    proxy?: RequestInfo
+    proxyOption?: RequestInit
     date: Date;
     layers: GetMapParameters.Sentinel_2[];
+    width?: number;
+    height?: number
 };
 
 export namespace SentinelHubWms {
@@ -73,7 +75,7 @@ export namespace SentinelHubWms {
      * @description used to get the sentinel's satellite image of a square
      */
     export async function getMap(uuid: string = "", bbox: BBox, options: getFromSentinelOptions) {
-        const getMapInst = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: GetMapParameters.Format.image_png, LAYERS: options.layers, WIDTH: "1024", HEIGHT: "780" });
+        const getMapInst = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: GetMapParameters.Format.image_png, LAYERS: options.layers, WIDTH: (options.width||1024), HEIGHT: (options.height||780) });
         if (options.proxy) getMapInst.proxy = options.proxy
         if (options.proxyOption) getMapInst.proxyOptions = options.proxyOption
         return await getMapInst.request();
