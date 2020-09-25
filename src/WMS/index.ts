@@ -2,45 +2,54 @@ import { GetMap } from "./GetMap/GetMap";
 import { Feature, Polygon, FeatureCollection, BBox } from "geojson";
 import { Cropper } from "./GetMap/Cropper";
 import { defer, from } from 'rxjs'
-import { GetMapParameters } from "./GetMap/WMSParameters";
+import { GetMapParameters as _GetMapParameters } from "./GetMap/WMSParameters";
 import * as featureToBBox from 'geojson-bbox'
-export { GetMapParameters as WMSParameters } from "./GetMap/WMSParameters";
+import { LagLngXY, XY } from "./GetMap/LagLngXY";
+import { BoxCords } from "./GetMap/BoxCords";
+import * as geojsonBbox from 'geojson-bbox'
 export type AceptedFeatures = Feature<Polygon>
 
-export type ICroppedImage = {
-    img: string;
-    feature: Feature<Polygon>;
-    bbox: [number[], number[]];
-    link: string;
-};
-
-export type getFromSentinelOptions = {
-    proxy?: RequestInfo
-    proxyOption?: RequestInit
-    date: Date;
-    layers: GetMapParameters.Sentinel_2[];
-    width?: number;
-    height?: number
-};
 
 export namespace SentinelHubWms {
+    export type ICroppedImage = {
+        img: string;
+        feature: Feature<Polygon>;
+        bbox: BBox;
+        link: string;
+    };
+    export type getFromSentinelOptions = {
+        proxy?: RequestInfo
+        proxyOption?: RequestInit
+        date: Date;
+        layers: _GetMapParameters.Sentinel_2[];
+        width?: number;
+        height?: number
+    };
+    export import GetMapParameters = _GetMapParameters;
+
     const featureToFeatureCollection = (feature: Feature<Polygon>): GeoJSON.FeatureCollection<Polygon> => ({ features: [feature], type: "FeatureCollection" })
-    export function latLngToXYTool(geoJson: GeoJSON.FeatureCollection<Polygon> | Feature<Polygon>) {
+    const featuresToFeatureCollection = (features: Feature<Polygon>[]): GeoJSON.FeatureCollection<Polygon> => ({ features, type: "FeatureCollection" })
+
+    export function latLngToXYTool(geoJson: GeoJSON.FeatureCollection<Polygon> | Feature<Polygon>, canvasResolution: XY) {
         let featureCollection: GeoJSON.FeatureCollection<Polygon>
         if ("features" in geoJson) {
             featureCollection = geoJson
         } else {
             featureCollection = featureToFeatureCollection(geoJson)
         }
-        return Cropper.getLagLngXY(featureCollection);
+        return Cropper.getLagLngXY(featureCollection, canvasResolution);
     }
 
     /**
      * @description used to get sentinel's satellite image of a polygon, with the image cropped for the polygon
      */
     export async function getShapeFromSentinel(feature: Feature<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage> {
+        const canvasResolution: XY = {
+            X: (options.width || 1024),
+            Y: (options.height || 780)
+        }
         const sentinelResult = await getMap(uuid, featureToBBox(feature), options)
-        const latLngTool = latLngToXYTool(feature)[0];
+        const latLngTool = latLngToXYTool(feature, canvasResolution)[0];
         const shape = await Cropper.ClipBase64ImageFromPolygon(feature, URL.createObjectURL(sentinelResult.blob), latLngTool);
         return { img: shape.img, feature, bbox: shape.LatLng, link: sentinelResult.link };
     }
@@ -75,12 +84,54 @@ export namespace SentinelHubWms {
      * @description used to get the sentinel's satellite image of a square
      */
     export async function getMap(uuid: string = "", bbox: BBox, options: getFromSentinelOptions) {
-        const getMapInst = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: GetMapParameters.Format.image_png, LAYERS: options.layers, WIDTH: (options.width||1024), HEIGHT: (options.height||780) });
+        const getMapInst = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: GetMapParameters.Format.image_png, LAYERS: options.layers, WIDTH: (options.width || 1024), HEIGHT: (options.height || 780) });
         if (options.proxy) getMapInst.proxy = options.proxy
         if (options.proxyOption) getMapInst.proxyOptions = options.proxyOption
         return await getMapInst.request();
     }
+    export function sentinelbase64ToImage(base64: string, width: number, height: number): Promise<HTMLImageElement> {
+        return new Promise((r, f) => {
+            const img = new Image(width, height)
+            img.onload = () => { r(img) }
+            img.onerror = (e) => { console.error(e); f(new Image(width, height)) }
+            img.src = base64
+        })
+    }
+    export function renderImage(latLngTool: LagLngXY, context: CanvasRenderingContext2D): (value: ICroppedImage, index: number, array: ICroppedImage[]) => Promise<void> {
+        return async (feature) => {
+            const topLeft = latLngTool.translateToCanvas(geojsonBbox[0], geojsonBbox[1]);
+            const bottonRigth = latLngTool.translateToCanvas(geojsonBbox[0], geojsonBbox[1]);
+            const width = bottonRigth.X - topLeft.X;
+            const height = bottonRigth.Y - topLeft.Y;
+            const img = await sentinelbase64ToImage(feature.img, width, height);
+            context.drawImage(img, topLeft.X, topLeft.Y, width, height);
+        };
+    }
+    export async function plotFeatureGroup(canvasResolution: { width: number, hegth: number }, featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions) {
+        const images = await getShapesFromSentinel(featureCollection, uuid, options)
+        return await plotShapesResults(canvasResolution, images, featureCollection);
+    }
 
+
+
+
+    async function plotShapesResults(canvasResolution: { width: number; hegth: number; }, images: ICroppedImage[], featureCollection?: FeatureCollection<Polygon>) {
+        featureCollection = featureCollection || featuresToFeatureCollection(images.map(i => i.feature))
+        const canvas = document.createElement('canvas');
+
+        canvas.width = canvasResolution.width;
+        canvas.height = canvasResolution.hegth;
+
+        const context = canvas.getContext('2d');
+
+        const latLngTool = new LagLngXY(new BoxCords(geojsonBbox(featureCollection)));
+
+        const rencerImages = images.map(renderImage(latLngTool, context));
+
+        await Promise.all(rencerImages);
+
+        return canvas.toDataURL();
+    }
     // /**
     //  * @deprecated `new code in development`
     //  * @description used to find and remove non organic pixels in the satellite data (remove roads/houses/...)

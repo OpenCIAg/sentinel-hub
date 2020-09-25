@@ -4,7 +4,7 @@ import { TYPENAMES } from './GetFeatures/TYPENAMES';
 import { GetFeaturesRequest } from './GetFeatures/GetFeaturesRequest';
 import { GetFeaturesRequestOptions, RawGetFeatureRequestOptions } from './GetFeatures/GetFeaturesRequestOptions';
 import { defer, from, Observable } from 'rxjs';
-import { _SafeFetch,ArgumentTypes } from '..';
+import { _SafeFetch,_ArgumentTypes } from '..';
 import { GetFeatureReturn } from './GetFeatures/GetFeatureReturn';
 
 export namespace SentinelHubWfs {
@@ -114,7 +114,7 @@ export namespace SentinelHubWfs {
      *  it can be created with a proxy URL
      * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
      */
-    export const getAvaliableDatesAsync = (...args:ArgumentTypes< typeof getAvaliableDates>)=>defer(() => from(getAvaliableDates(...args)))
+    export const getAvaliableDatesAsync = (...args:_ArgumentTypes< typeof getAvaliableDates>)=>defer(() => from(getAvaliableDates(...args)))
 
 
 }

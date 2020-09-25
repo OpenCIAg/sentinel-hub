@@ -70,8 +70,8 @@ export class GetMap {
             this.RESX = params.RESX;
             this.RESY = params.RESY;
         } else {
-            this.RESX = this.measure(this.BBOX.TOP_LEFT.LAT, this.BBOX.TOP_LEFT.LONG, this.BBOX.TOP_LEFT.LAT, this.BBOX.BOTTON_RIGHT.LONG).toFixed() + "m";
-            this.RESY = this.measure(this.BBOX.TOP_LEFT.LAT, this.BBOX.TOP_LEFT.LONG, this.BBOX.BOTTON_RIGHT.LAT, this.BBOX.TOP_LEFT.LONG).toFixed() + "m";
+            this.RESX = this.measure(this.BBOX.BOTTON_RIGHT.LAT, this.BBOX.BOTTON_RIGHT.LONG, this.BBOX.BOTTON_RIGHT.LAT, this.BBOX.TOP_LEFT.LONG).toFixed() + "m";
+            this.RESY = this.measure(this.BBOX.BOTTON_RIGHT.LAT, this.BBOX.BOTTON_RIGHT.LONG, this.BBOX.TOP_LEFT.LAT, this.BBOX.BOTTON_RIGHT.LONG).toFixed() + "m";
         }
         this.BGCOLOR = params.BGCOLOR ? params.BGCOLOR : this.BGCOLOR;
         this.TRANSPARENT = params.TRANSPARENT ? params.TRANSPARENT : this.TRANSPARENT;
@@ -80,6 +80,7 @@ export class GetMap {
     }
     public async request() {
         try {
+            console.log(this.get_requestLink())
             return await (_SafeFetch(this.get_requestLink(), this.proxyOptions).then(async (res) => {
                 const result = { link: res.url, blob: null };
                 result.blob = await res.blob();
@@ -103,7 +104,7 @@ export class GetMap {
     private get_requestLink() {
         const link = new SentinelHubURL(this.proxy);
         if (!this.proxy) { link.addUUID(this.UUID); }
-        if (this.BBOX) { link.addParameter("BBOX", this.BBOX.getBBox); }
+        if (this.BBOX) { link.addParameter("BBOX", this.BBOX.toString()); }
         if (this.CRS) { link.addParameter("CRS", this.CRS); }
         if (this.SRS) { link.addParameter("SRS", this.SRS); }
         if (this.FORMAT) { link.addParameter("FORMAT", this.FORMAT); }

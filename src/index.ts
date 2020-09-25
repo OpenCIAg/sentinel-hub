@@ -5,8 +5,8 @@ import * as nodeFetch from 'node-fetch'
 export let _SafeFetch = globalThis.fetch ? globalThis.fetch.bind(window) : nodeFetch
 // type used to clone function parametes
 
-export type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any ? A : never;
-export namespace SentinelHub{
+export type _ArgumentTypes<F extends Function> = F extends (...args: infer A) => any ? A : never;
+export namespace SentinelHub {
     export const WMS = SentinelHubWms
     export const WFS = SentinelHubWfs
 }
