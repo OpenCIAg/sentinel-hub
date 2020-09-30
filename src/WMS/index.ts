@@ -2,22 +2,39 @@ import { GetMap } from "./GetMap/GetMap";
 import { Feature, Polygon, FeatureCollection, BBox } from "geojson";
 import { Cropper } from "./GetMap/Cropper";
 import { defer, from } from 'rxjs'
-import { GetMapParameters as _GetMapParameters } from "./GetMap/WMSParameters";
+import { GetFeatureInfoParams, GetMapParameters as _GetMapParameters } from "./WMSParameters";
 import * as featureToBBox from 'geojson-bbox'
 import { LagLngXY, XY } from "./GetMap/LagLngXY";
 import { BoxCords } from "./GetMap/BoxCords";
 import * as geojsonBbox from 'geojson-bbox'
+import { GetFeatureInfo } from "./getFeatureInfo/GetFeatureInfo";
+
 export type AceptedFeatures = Feature<Polygon>
 
 
+
 export namespace SentinelHubWms {
+    export import GetMapParameters = _GetMapParameters;
+    export interface GetFeatureInfoProperties {
+        id: string;
+        date: string;
+        time: string;
+        path: string;
+        crs: string;
+        mbr: string;
+        cloudCoverPercentage: number;
+        out1: string;
+        out2: string;
+        out3: string;
+    }
+    export type GetFeatureInfoReturn = GeoJSON.FeatureCollection<GeoJSON.Polygon, GetFeatureInfoProperties>
     export type ICroppedImage = {
         img: string;
         feature: Feature<Polygon>;
         bbox: BBox;
         link: string;
     };
-    export type getFromSentinelOptions = {
+    export type getMapFromSentinelOptions = {
         proxy?: RequestInfo
         proxyOption?: RequestInit
         date: Date;
@@ -25,7 +42,12 @@ export namespace SentinelHubWms {
         width?: number;
         height?: number
     };
-    export import GetMapParameters = _GetMapParameters;
+    export type getFeatureInfoFromSentinelOptions = {
+        proxy?: RequestInfo
+        proxyOption?: RequestInit
+        date: Date;
+        layer: GetFeatureInfoParams.QUERY_LAYERS | string;
+    };
 
     const featureToFeatureCollection = (feature: Feature<Polygon>): GeoJSON.FeatureCollection<Polygon> => ({ features: [feature], type: "FeatureCollection" })
     const featuresToFeatureCollection = (features: Feature<Polygon>[]): GeoJSON.FeatureCollection<Polygon> => ({ features, type: "FeatureCollection" })
@@ -43,7 +65,7 @@ export namespace SentinelHubWms {
     /**
      * @description used to get sentinel's satellite image of a polygon, with the image cropped for the polygon
      */
-    export async function getShapeFromSentinel(feature: Feature<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage> {
+    export async function getShapeFromSentinel(feature: Feature<Polygon>, uuid: string, options: getMapFromSentinelOptions): Promise<ICroppedImage> {
         const canvasResolution: XY = {
             X: (options.width || 1024),
             Y: (options.height || 780)
@@ -59,12 +81,12 @@ export namespace SentinelHubWms {
      * `RxJs Version`
      */
 
-    export const getShapeFromSentinelAsync = (feature: Feature<Polygon>, uuid: string, options: getFromSentinelOptions) => defer(() => from(getShapeFromSentinel(feature, uuid, options)))
+    export const getShapeFromSentinelAsync = (feature: Feature<Polygon>, uuid: string, options: getMapFromSentinelOptions) => defer(() => from(getShapeFromSentinel(feature, uuid, options)))
 
     /**
      * @description used to get multiple sentinel's satellite image of a collection of polygons, with the image cropped for the polygon
      */
-    export async function getShapesFromSentinel(featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions): Promise<ICroppedImage[]> {
+    export async function getShapesFromSentinel(featureCollection: FeatureCollection<Polygon>, uuid: string, options: getMapFromSentinelOptions): Promise<ICroppedImage[]> {
         const promises = featureCollection.features.map(i => getShapeFromSentinel(i, uuid, options))
         const resolverOrFailerPromises = await Promise.allSettled(promises);
         const fulfilledPromises = resolverOrFailerPromises
@@ -78,12 +100,12 @@ export namespace SentinelHubWms {
      * @description used to get multiple sentinel's satellite image of a collection of polygons, with the image cropped for the polygon
      * `RxJs Version`
      */
-    export const getShapesFromSentinelAsync = (featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions) => featureCollection.features.map(feature => defer(() => from(getShapeFromSentinel(feature, uuid, options))))
+    export const getShapesFromSentinelAsync = (featureCollection: FeatureCollection<Polygon>, uuid: string, options: getMapFromSentinelOptions) => featureCollection.features.map(feature => defer(() => from(getShapeFromSentinel(feature, uuid, options))))
 
     /**
      * @description used to get the sentinel's satellite image of a square
      */
-    export async function getMap(uuid: string = "", bbox: BBox, options: getFromSentinelOptions) {
+    export async function getMap(uuid: string = "", bbox: BBox, options: getMapFromSentinelOptions) {
         const getMapInst = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: GetMapParameters.Format.image_png, LAYERS: options.layers, WIDTH: (options.width || 1024), HEIGHT: (options.height || 780) });
         if (options.proxy) getMapInst.proxy = options.proxy
         if (options.proxyOption) getMapInst.proxyOptions = options.proxyOption
@@ -107,7 +129,7 @@ export namespace SentinelHubWms {
             context.drawImage(img, topLeft.X, topLeft.Y, width, height);
         };
     }
-    export async function plotFeatureGroup(canvasResolution: { width: number, hegth: number }, featureCollection: FeatureCollection<Polygon>, uuid: string, options: getFromSentinelOptions) {
+    export async function plotFeatureGroup(canvasResolution: { width: number, hegth: number }, featureCollection: FeatureCollection<Polygon>, uuid: string, options: getMapFromSentinelOptions) {
         const images = await getShapesFromSentinel(featureCollection, uuid, options)
         return await plotShapesResults(canvasResolution, images, featureCollection);
     }
@@ -131,6 +153,15 @@ export namespace SentinelHubWms {
         await Promise.all(rencerImages);
 
         return canvas.toDataURL();
+    }
+
+    export async function getFeatureInfo(feature: Feature<Polygon>, uuid: string, WIDTH: number, HEIGHT: number, J: number, I: number, options: getFeatureInfoFromSentinelOptions = { date: new Date(), layer: GetFeatureInfoParams.QUERY_LAYERS.NDVI }) {
+        const bbox = geojsonBbox(feature).map(i => String(i).replace('-', '').replace('.', '').slice(0, 7)).join(',')
+        const sentinelResult = new GetFeatureInfo(uuid, options.date, bbox, WIDTH, HEIGHT, I, J, options.layer)
+        if (options.proxy) sentinelResult.proxy = options.proxy
+        if (options.proxyOption) sentinelResult.proxyOptions = options.proxyOption
+        const result = await sentinelResult.request<GetFeatureInfoReturn>()
+        return result
     }
     // /**
     //  * @deprecated `new code in development`

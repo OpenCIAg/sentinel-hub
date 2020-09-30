@@ -1,4 +1,4 @@
-import { GetMapParameters } from "./WMSParameters";
+import { GetMapParameters } from "../WMSParameters";
 import { BoxCords } from "./BoxCords";
 import { SentinelHubURL } from "./SentinelHubURL";
 import { _SafeFetch } from "../..";

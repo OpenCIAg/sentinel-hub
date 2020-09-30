@@ -1,12 +1,14 @@
+export enum SentinelWMSRequests{
+    GET_MAP="REQUEST=GetMap",
+    GET_FEATURE_INFO="REQUEST=GetFeatureInfo"
+}
 export class SentinelHubURL {
     public parameters = [];
     public link: string;
-   
-    public request = "REQUEST=GetMap";
     public UUID: string;
     public timeFrom = null;
     public timeTo = null;
-    constructor(public preset:RequestInfo = "https://services.sentinel-hub.com/ogc/wms/") {
+    constructor(public preset:RequestInfo = "https://services.sentinel-hub.com/ogc/wms/",public request:SentinelWMSRequests|string = SentinelWMSRequests.GET_MAP) {
     }
     public addUUID(uuid: string) { this.UUID = uuid; }
     public addParameter(name: string, value: any) {
