@@ -40,7 +40,8 @@ export namespace SentinelHubWms {
         date: Date;
         layers: _GetMapParameters.Sentinel_2[];
         width?: number;
-        height?: number
+        height?: number,
+        showLogo?: boolean
     };
     export type getFeatureInfoFromSentinelOptions = {
         proxy?: RequestInfo
@@ -106,7 +107,7 @@ export namespace SentinelHubWms {
      * @description used to get the sentinel's satellite image of a square
      */
     export async function getMap(uuid: string = "", bbox: BBox, options: getMapFromSentinelOptions) {
-        const getMapInst = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: GetMapParameters.Format.image_png, LAYERS: options.layers, WIDTH: (options.width || 1024), HEIGHT: (options.height || 780) });
+        const getMapInst = new GetMap(uuid, { DATE: options.date, BBOX: bbox, FORMAT: GetMapParameters.Format.image_png, LAYERS: options.layers, WIDTH: (options.width || 1024), HEIGHT: (options.height || 780), SHOWLOGO: options.showLogo });
         if (options.proxy) getMapInst.proxy = options.proxy
         if (options.proxyOption) getMapInst.proxyOptions = options.proxyOption
         return await getMapInst.request();

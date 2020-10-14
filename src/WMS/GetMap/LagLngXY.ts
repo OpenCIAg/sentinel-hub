@@ -23,9 +23,9 @@ export class LagLngXY {
         this.minCanvasPosition = this.latlngToGlobalXY(this.minMapPosition)
         this.maxCanvasPosition = this.latlngToGlobalXY(this.maxMapPosition)
     }
-    public latlngToGlobalXY(position: DescriptivePosition): XY
-    public latlngToGlobalXY(lat: number, lng: number): XY
-    public latlngToGlobalXY(lat: number | DescriptivePosition, lng?: number): XY {
+    private latlngToGlobalXY(position: DescriptivePosition): XY
+    private latlngToGlobalXY(lat: number, lng: number): XY
+    private latlngToGlobalXY(lat: number | DescriptivePosition, lng?: number): XY {
         let pos: DescriptivePosition
         if (lat instanceof DescriptivePosition) {
             pos = lat;
@@ -36,8 +36,6 @@ export class LagLngXY {
         const X = this.radius * pos.LONG
         const Y = this.radius * pos.LAT
 
-        // const Y = this.radius * pos.LAT * Math.cos((this.minMapPosition.LAT + this.maxMapPosition.LAT) / 2);
-        // const X = this.radius * pos.LONG * Math.cos((this.minMapPosition.LONG + this.maxMapPosition.LONG) / 2);
         return { X, Y };
     }
     /**

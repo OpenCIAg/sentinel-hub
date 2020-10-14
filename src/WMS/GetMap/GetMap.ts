@@ -37,6 +37,8 @@ export class GetMap {
     // (when FORMAT = "image/png" or "image/tiff") The returned image has an alpha channel which is blank for pixels with no valid or available input data. Optional, default = "false". Supported values: "true", "false", "0", "1".
     private TRANSPARENT: boolean = false;
 
+    private SHOWLOGO: boolean = true;
+
 
     // The preconfigured layer (image) to be returned. You must specify exactly one layer and optionally add additional overlays. Required. Example: LAYERS=TRUE_COLOR,OUTLINE
     private LAYERS: GetMapParameters.Sentinel_2[] = [GetMapParameters.Sentinel_2.TRUE_COLOR];
@@ -51,7 +53,7 @@ export class GetMap {
 
     public proxyOptions: RequestInit = {}
 
-    constructor(UUID: string, params: { DATE: Date, BBOX: BBox, CRS?: string, SRS?: string, FORMAT: GetMapParameters.Format, WIDTH?: number, HEIGHT?: number, RESX?: string, RESY?: string, BGCOLOR?: GetMapParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: GetMapParameters.Sentinel_2[], EXCEPTIONS?: GetMapParameters.Exceptions }) {
+    constructor(UUID: string, params: { DATE: Date, BBOX: BBox, CRS?: string, SRS?: string, FORMAT: GetMapParameters.Format, WIDTH?: number, HEIGHT?: number, RESX?: string, RESY?: string, BGCOLOR?: GetMapParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: GetMapParameters.Sentinel_2[], EXCEPTIONS?: GetMapParameters.Exceptions,SHOWLOGO?:Boolean }) {
         this.DATE = params.DATE ? params.DATE : this.DATE;
         this.UUID = UUID;
         this.BBOX = new BoxCords(params.BBOX);
@@ -114,6 +116,7 @@ export class GetMap {
         if (this.TRANSPARENT) { link.addParameter("TRANSPARENT", this.TRANSPARENT); }
         if (this.LAYERS) { link.addParameter("LAYERS", this.LAYERS); }
         if (this.EXCEPTIONS) { link.addParameter("EXCEPTIONS", this.EXCEPTIONS); }
+        if (this.SHOWLOGO) { link.addParameter("SHOWLOGO", this.SHOWLOGO); }
         link.setTimeFrom(this.DATE);
         if (this.proxy) { return link.getProxy() }
         else { return link.getLink() };
