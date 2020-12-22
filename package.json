@@ -1,7 +1,7 @@
 {
   "name": "@ciag/sentinel-hub",
   "private": false,
-  "version": "0.0.1-beta.22",
+  "version": "0.0.1-beta.23",
   "description": "a API to create the sentinel ogs requests, and tools to apply on the data",
   "main": "dist/index.js",
   "scripts": {
@@ -37,5 +37,6 @@
     "geojson-bbox": "0.0.0",
     "node-fetch": "^2.6.0",
     "rxjs": "^6.5.5"
-  }
+  },
+  "types": "dist/index.d.ts"
 }

@@ -82,7 +82,6 @@ export class GetMap {
     }
     public async request() {
         try {
-            console.log(this.get_requestLink())
             return await (_SafeFetch(this.get_requestLink(), this.proxyOptions).then(async (res) => {
                 const result = { link: res.url, blob: null };
                 result.blob = await res.blob();
