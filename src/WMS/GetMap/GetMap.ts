@@ -53,7 +53,7 @@ export class GetMap {
 
     public proxyOptions: RequestInit = {}
 
-    constructor(UUID: string, params: { DATE: Date, BBOX: BBox, CRS?: string, SRS?: string, FORMAT: GetMapParameters.Format, WIDTH?: number, HEIGHT?: number, RESX?: string, RESY?: string, BGCOLOR?: GetMapParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: GetMapParameters.Sentinel_2[], EXCEPTIONS?: GetMapParameters.Exceptions,SHOWLOGO?:Boolean }) {
+    constructor(UUID: string, params: { DATE: Date, BBOX: BBox, CRS?: string, SRS?: string, FORMAT: GetMapParameters.Format, WIDTH?: number, HEIGHT?: number, RESX?: string, RESY?: string, BGCOLOR?: GetMapParameters.BgColor, TRANSPARENT?: boolean, LAYERS?: GetMapParameters.Sentinel_2[], EXCEPTIONS?: GetMapParameters.Exceptions, SHOWLOGO?: boolean }) {
         this.DATE = params.DATE ? params.DATE : this.DATE;
         this.UUID = UUID;
         this.BBOX = new BoxCords(params.BBOX);
@@ -79,6 +79,7 @@ export class GetMap {
         this.TRANSPARENT = params.TRANSPARENT ? params.TRANSPARENT : this.TRANSPARENT;
         this.LAYERS = params.LAYERS ? params.LAYERS : this.LAYERS;
         this.EXCEPTIONS = params.EXCEPTIONS;
+        this.SHOWLOGO = params.SHOWLOGO || false
     }
     public async request() {
         try {
@@ -115,7 +116,7 @@ export class GetMap {
         if (this.TRANSPARENT) { link.addParameter("TRANSPARENT", this.TRANSPARENT); }
         if (this.LAYERS) { link.addParameter("LAYERS", this.LAYERS); }
         if (this.EXCEPTIONS) { link.addParameter("EXCEPTIONS", this.EXCEPTIONS); }
-        if (this.SHOWLOGO) { link.addParameter("SHOWLOGO", this.SHOWLOGO); }
+        if (this.SHOWLOGO !== undefined) { link.addParameter("SHOWLOGO", this.SHOWLOGO); }
         link.setTimeFrom(this.DATE);
         if (this.proxy) { return link.getProxy() }
         else { return link.getLink() };

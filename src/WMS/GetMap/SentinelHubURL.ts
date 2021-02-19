@@ -1,6 +1,6 @@
-export enum SentinelWMSRequests{
-    GET_MAP="REQUEST=GetMap",
-    GET_FEATURE_INFO="REQUEST=GetFeatureInfo"
+export enum SentinelWMSRequests {
+    GET_MAP = "REQUEST=GetMap",
+    GET_FEATURE_INFO = "REQUEST=GetFeatureInfo"
 }
 export class SentinelHubURL {
     public parameters = [];
@@ -8,17 +8,17 @@ export class SentinelHubURL {
     public UUID: string;
     public timeFrom = null;
     public timeTo = null;
-    constructor(public preset:RequestInfo = "https://services.sentinel-hub.com/ogc/wms/",public request:SentinelWMSRequests|string = SentinelWMSRequests.GET_MAP) {
+    constructor(public preset: RequestInfo = "https://services.sentinel-hub.com/ogc/wms/", public request: SentinelWMSRequests | string = SentinelWMSRequests.GET_MAP) {
     }
     public addUUID(uuid: string) { this.UUID = uuid; }
     public addParameter(name: string, value: any) {
         this.parameters.push(name + "=" + value);
     }
     public setTimeFrom(date: Date) {
-        this.timeFrom = "TIME=" + date.toISOString().split("T")[0];
+        this.timeFrom = "TIME=" + this.formatSentinelUrlDate(date);
     }
     public setTimeTo(date: Date) {
-        this.timeTo = "/" + date.toISOString().split("T")[0] + "/P1D";
+        this.timeTo = "/" + this.formatSentinelUrlDate(date);
     }
     public clearTime() {
         this.timeFrom = null;
@@ -35,5 +35,8 @@ export class SentinelHubURL {
     private getLinkTime() {
         return this.timeFrom ? (this.timeFrom + (this.timeTo ? this.timeTo : "")
             + "&") : "";
+    }
+    private formatSentinelUrlDate(date: Date) {
+        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
     }
 }

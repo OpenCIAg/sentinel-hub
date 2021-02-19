@@ -4,7 +4,7 @@ import { TYPENAMES } from './GetFeatures/TYPENAMES';
 import { GetFeaturesRequest } from './GetFeatures/GetFeaturesRequest';
 import { GetFeaturesRequestOptions, RawGetFeatureRequestOptions } from './GetFeatures/GetFeaturesRequestOptions';
 import { defer, from, Observable } from 'rxjs';
-import { _SafeFetch,_ArgumentTypes } from '..';
+import { _SafeFetch, _ArgumentTypes } from '..';
 import { GetFeatureReturn } from './GetFeatures/GetFeatureReturn';
 
 export namespace SentinelHubWfs {
@@ -97,13 +97,14 @@ export namespace SentinelHubWfs {
      * @description Used to fetch avaliable dates for sattelite data
      *
      *  it can be created with a proxy URL
-     * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
+     * @param {GetFeaturesRequestOptions} dateOptions for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
      */
-    export async function getAvaliableDates(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, options: { from: Date, to: Date, proxy?: RequestInfo, requestOption?: RequestInit }): Promise<Date[]> {
-        const requestOptions = Object.assign({}, defaultGetDateOptions)
-        requestOptions.DATE_START = options.from
-        requestOptions.DATE_END = options.to
-        const dates: GetFeatureReturn = await GetFeature(polygonList, uuid, requestOptions, options.proxy, options.requestOption).then(r => r.json())
+    export async function getAvaliableDates(polygonList: FeatureCollection<Polygon> | Feature<Polygon>, uuid: string, dateOptions: { from: Date, to: Date, proxy?: RequestInfo, requestOption?: RequestInit }, options: GetFeaturesRequestOptions = defaultGetDateOptions): Promise<Date[]> {
+        let requestOptions = {...defaultGetDateOptions,...options}
+        
+        requestOptions.DATE_START = dateOptions.from
+        requestOptions.DATE_END = dateOptions.to
+        const dates: GetFeatureReturn = await GetFeature(polygonList, uuid, requestOptions, dateOptions.proxy, dateOptions.requestOption).then(r => r.json())
         return dates.features.map(i => new Date(i.properties.date))
     }
 
@@ -114,7 +115,7 @@ export namespace SentinelHubWfs {
      *  it can be created with a proxy URL
      * @param {GetFeaturesRequestOptions} options for each option effect and more details: https://www.sentinel-hub.com/develop/api/ogc/standard-parameters/wfs/
      */
-    export const getAvaliableDatesAsync = (...args:_ArgumentTypes< typeof getAvaliableDates>)=>defer(() => from(getAvaliableDates(...args)))
+    export const getAvaliableDatesAsync = (...args: _ArgumentTypes<typeof getAvaliableDates>) => defer(() => from(getAvaliableDates(...args)))
 
 
 }
